@@ -1,0 +1,48 @@
+name: CI - Multimodal Telemetry Platform & HIL Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  telemetry-platform-hil:
+    runs-on: ubuntu-latest
+    name: Telemetry Bus, ICD & HIL Verification
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install System Dependencies (Protobuf Compiler)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y protobuf-compiler
+
+      - name: Validate Protocol Buffers ICD Syntax
+        run: |
+          echo "=== Compiling and Validating proto/telemetry_bus.proto ==="
+          protoc --proto_path=proto --descriptor_set_out=/dev/null proto/telemetry_bus.proto
+          echo "[SUCCESS] Protocol Buffers schema syntax is valid and compliant."
+
+      - name: Python Source Code Compilation & Syntax Audit
+        run: |
+          echo "=== Compiling Python Source Files ==="
+          python3 -m py_compile \
+            tests/mock_hardware_feeder.py \
+            footpad_mapper.py \
+            stand_monitor.py \
+            cgm_adb_bridge.py \
+            "F4 modding/f4_pipeline_router.py"
+          echo "[SUCCESS] All primary Python platform services pass syntax compilation."
+
+      - name: Execute Headless HIL Mock Feeder Benchmark
+        run: |
+          echo "=== Running Hardware-in-the-Loop 1-ms Deterministic Feeder Test ==="
+          python3 tests/mock_hardware_feeder.py --frames 1000 --rate-hz 250

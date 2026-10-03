@@ -49,6 +49,7 @@ all_user_queries.txt
 # 7. Heavy Document & External Binaries
 *.docx
 *.pdf
+!Bioengineering_Work_Example_Serhii_Khylevych.pdf
 *.apk
 *.jar
 *.so

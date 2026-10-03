@@ -1,0 +1,102 @@
+// ==============================================================================
+// Autonomous Multimodal Cyber-Physical Telemetry Platform & Digital Therapeutics Stand
+// Interface Control Document (ICD): 1-ms Deterministic Telemetry Bus
+// Standard: Protocol Buffers v3 (Proto3)
+// ==============================================================================
+
+syntax = "proto3";
+
+package telemetry.v1;
+
+option csharp_namespace = "Telemetry.V1";
+option go_package = "telemetry/v1;telemetryv1";
+option java_multiple_files = true;
+option java_package = "com.telemetry.v1";
+
+// Status of individual hardware sensors connected to the ingestion hub.
+enum SensorState {
+  SENSOR_STATE_UNSPECIFIED = 0;
+  SENSOR_STATE_OK = 1;
+  SENSOR_STATE_DEGRADED = 2;
+  SENSOR_STATE_DISCONNECTED = 3;
+  SENSOR_STATE_CALIBRATING = 4;
+}
+
+// Ingestion status flags for hardware diagnostics.
+message SensorHealth {
+  SensorState ecg_sensor_state = 1;
+  SensorState cgm_sensor_state = 2;
+  SensorState controller_state = 3;
+  SensorState footpad_state = 4;
+  SensorState speech_mic_state = 5;
+  uint32 buffer_underruns = 6;
+  uint32 drop_frame_count = 7;
+}
+
+// Unified 1-ms deterministic telemetry frame transmitted over low-latency IPC/shm.
+// Timing constraint: Total end-to-end ingestion-to-dispatch latency <= 1000 microseconds.
+message TelemetryFrame {
+  // Nanosecond hardware timestamp referenced to Linux CLOCK_MONOTONIC_RAW.
+  uint64 timestamp_raw_ns = 1;
+
+  // Monotonically increasing sequence number for jitter and dropped frame auditing.
+  uint64 frame_sequence = 2;
+
+  // --- Cardiac & Autonomic Nervous System Layer (Polar H10 BLE GATT) ---
+  // Instantaneous RR-interval duration in milliseconds (resolution: 0.1 ms).
+  float ecg_rr_ms = 3;
+
+  // Root Mean Square of Successive Differences (RMSSD) over a 30-sample rolling window.
+  float hrv_rmssd = 4;
+
+  // Baevsky Vegetative Stress Index (SI = AMo / (2 * VR * Mo)) computed in real-time.
+  float stress_index = 5;
+
+  // --- Metabolic Layer (LinX Continuous Glucose Monitor via ADB/BLE) ---
+  // Subcutaneous interstitial glucose level in mmol/L.
+  float cgm_glucose_mmol = 6;
+
+  // First-order rate of change of glucose level (mmol/L per minute).
+  float cgm_trend_rate = 7;
+
+  // --- Neuromotor & Biomechanical Layer (evdev / DualShock 4 at 250 Hz) ---
+  // Normalized analog stick coordinates [-1.0 .. 1.0].
+  float motor_axis_x = 8;
+  float motor_axis_y = 9;
+
+  // Dominant frequency peak of aim micro-tremor calculated via sliding FFT (Hz).
+  float aim_jitter_hz = 10;
+
+  // Amplitude of micro-tremor envelope (normalized power density).
+  float aim_jitter_amplitude = 11;
+
+  // Bitmask of active foot pedal switches (PCsensor USB FootSwitch):
+  // Bit 0: Left Pedal (e.g., Sprint / Stride)
+  // Bit 1: Middle Pedal (e.g., Tactical Crouch / Cover)
+  // Bit 2: Right Pedal (e.g., Jump / High-Knee Action)
+  uint32 foot_pedal_mask = 12;
+
+  // --- Simulation Workload Layer (Closed-Loop Virtual Cognitive Engine) ---
+  // Synchronized simulation state or event ID from Creation Engine Papyrus runtime:
+  // 0: IDLE_EXPLORATION
+  // 1: COMBAT_ENGAGEMENT
+  // 2: HIGH_COGNITIVE_LOAD_DIALOGUE
+  // 3: RADIATION_BIO_HAZARD
+  // 4: SENSORY_DEPRIVATION_STEALTH
+  // 5: ADRENALINE_SURGE_EVENT
+  uint32 engine_event_id = 13;
+
+  // Real-time latency budget audit: execution elapsed time in microseconds.
+  uint32 latency_budget_us = 14;
+
+  // Sensor array health flags.
+  SensorHealth health = 15;
+}
+
+// Batch packet structure for telemetry persistence and high-throughput logging.
+message TelemetryBatch {
+  string session_id = 1;
+  uint64 batch_start_ns = 2;
+  uint64 batch_end_ns = 3;
+  repeated TelemetryFrame frames = 4;
+}
