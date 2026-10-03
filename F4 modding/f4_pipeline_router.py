@@ -81,7 +81,10 @@ def query_github_models(prompt: str, model: str = "gpt-4o-mini", system: str = "
     if not token:
         return "[ERROR] No GitHub token found in GITHUB_TOKEN or ~/.git-credentials"
 
-    url = "https://models.inference.ai.azure.com/chat/completions"
+    endpoints = [
+        "https://models.github.ai/inference/chat/completions",
+        "https://models.inference.ai.azure.com/chat/completions"
+    ]
     payload = {
         "messages": [
             {"role": "system", "content": system or DEFAULT_CODE_SYSTEM},
@@ -93,25 +96,37 @@ def query_github_models(prompt: str, model: str = "gpt-4o-mini", system: str = "
     }
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": "f4_pipeline_router/1.0"
     }
-    req = urllib.request.Request(
-        url,
-        headers=headers,
-        data=json.dumps(payload).encode("utf-8")
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            choices = data.get("choices", [])
-            if choices and "message" in choices[0]:
-                return choices[0]["message"].get("content", "")
-            return "[WARN] Empty response from GitHub Models"
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode("utf-8", errors="replace")
-        return f"[ERROR] GitHub Models HTTP {e.code}: {e.reason}\nDetails: {error_body}"
-    except urllib.error.URLError as e:
-        return f"[ERROR] Network error connecting to GitHub Models: {e}"
+
+    last_error = ""
+    for url in endpoints:
+        req = urllib.request.Request(
+            url,
+            headers=headers,
+            data=json.dumps(payload).encode("utf-8")
+        )
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        try:
+            with opener.open(req, timeout=30) as resp:
+                raw_body = resp.read().decode("utf-8")
+                try:
+                    data = json.loads(raw_body)
+                    choices = data.get("choices", [])
+                    if choices and "message" in choices[0]:
+                        return choices[0]["message"].get("content", "")
+                    return "[WARN] Empty response from GitHub Models"
+                except json.JSONDecodeError:
+                    return f"[INFO] Endpoint response: {raw_body.strip()}"
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8", errors="replace")
+            last_error = f"[ERROR] GitHub Models HTTP {e.code}: {e.reason}\nDetails: {error_body}"
+        except urllib.error.URLError as e:
+            last_error = f"[ERROR] Network error connecting to {url}: {e}"
+
+    return last_error
+
 
 def audit_staging_directory(target_path: Path) -> dict:
     """Audit mod staging folder for Papyrus sources, compiled PEX, and ESP files."""
