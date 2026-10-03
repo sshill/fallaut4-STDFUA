@@ -113,11 +113,11 @@ def query_github_models(prompt: str, model: str = "gpt-4o-mini", system: str = "
     except urllib.error.URLError as e:
         return f"[ERROR] Network error connecting to GitHub Models: {e}"
 
-def audit_staging_directory(target_path: Path):
+def audit_staging_directory(target_path: Path) -> dict:
     """Audit mod staging folder for Papyrus sources, compiled PEX, and ESP files."""
     if not target_path.exists():
         print(f"[FAIL] Target directory does not exist: {target_path}")
-        return False
+        return {"exists": False, "passed": False}
 
     print(f"\n==========================================")
     print(f"🔍 Functional Mod Audit: {target_path.name}")
@@ -125,10 +125,13 @@ def audit_staging_directory(target_path: Path):
 
     # 1. ESP Check
     esps = list(target_path.glob("*.esp"))
+    esp_name = "None"
+    esp_size_kb = 0.0
     if esps:
         for esp in esps:
-            size_kb = esp.stat().st_size / 1024
-            print(f"  [PASS] ESP Plugin: {esp.name} ({size_kb:.1f} KiB)")
+            esp_size_kb = esp.stat().st_size / 1024
+            esp_name = esp.name
+            print(f"  [PASS] ESP Plugin: {esp.name} ({esp_size_kb:.1f} KiB)")
     else:
         print("  [WARN] No .esp file found in root of staging directory.")
 
@@ -163,11 +166,48 @@ def audit_staging_directory(target_path: Path):
     for bs in build_scripts:
         print(f"    - {bs.name}")
 
+    passed = (len(recompile_needed) == 0) and bool(esps)
     print("==========================================\n")
-    return len(recompile_needed) == 0
+    return {
+        "name": target_path.name,
+        "exists": True,
+        "esp": esp_name,
+        "esp_size_kb": esp_size_kb,
+        "psc_count": len(psc_files),
+        "pex_count": len(pex_files),
+        "recompile_needed": recompile_needed,
+        "build_scripts": [bs.name for bs in build_scripts],
+        "passed": passed
+    }
+
+def audit_all_staging_directories():
+    """Scan and audit all staging directories in F4 modding."""
+    staging_dirs = sorted([d for d in MODDING_DIR.iterdir() if d.is_dir() and d.name.startswith("staging_")])
+    if not staging_dirs:
+        print("[WARN] No staging_* directories found in F4 modding.")
+        return
+
+    print(f"\n=======================================================")
+    print(f"📦 Batch Systemic Functional Audit: {len(staging_dirs)} Mod Modules")
+    print(f"=======================================================")
+
+    results = []
+    for sdir in staging_dirs:
+        res = audit_staging_directory(sdir)
+        results.append(res)
+
+    print("\n" + "=" * 70)
+    print(f"{'Mod Module':<26} | {'ESP':<18} | {'.psc/.pex':<10} | {'Status'}")
+    print("-" * 70)
+    for r in results:
+        status_str = "🟢 PASS" if r["passed"] else ("🟡 WARN (Recompile)" if r["recompile_needed"] else "🔴 FAIL")
+        psc_pex = f"{r['psc_count']}/{r['pex_count']}"
+        esp_str = f"{r['esp']} ({r['esp_size_kb']:.1f}k)" if r['esp'] != "None" else "None"
+        print(f"{r['name']:<26} | {esp_str:<18} | {psc_pex:<10} | {status_str}")
+    print("=" * 70 + "\n")
 
 def git_branch_manager(action: str, branch_name: str = "", message: str = ""):
-    """Manage isolated feature branches for mod development cases."""
+    """Manage isolated feature branches and remote push for mod development cases."""
     repo_dir = FALLOUT_ROOT
     if action == "create":
         if not branch_name:
@@ -179,27 +219,59 @@ def git_branch_manager(action: str, branch_name: str = "", message: str = ""):
             print(f"[PASS] Switched to new branch: {branch}")
         else:
             print(f"[INFO] Checkout message: {res.stderr.strip() or res.stdout.strip()}")
+
     elif action == "commit":
         if not message:
             print("[ERROR] Commit message required")
             return
+        
+        # Check current branch for standardized commit prefix
+        res_branch = subprocess.run(["git", "branch", "--show-current"], cwd=repo_dir, capture_output=True, text=True)
+        current_branch = res_branch.stdout.strip()
+        final_message = message
+        if current_branch.startswith("feature/"):
+            case_name = current_branch.replace("feature/", "")
+            prefixes = ("feat(", "fix(", "docs(", "refactor(", "test(", "chore(")
+            if not any(message.startswith(p) for p in prefixes):
+                final_message = f"feat(f4-{case_name}): {message}"
+
         subprocess.run(["git", "add", "."], cwd=repo_dir)
-        res = subprocess.run(["git", "commit", "-m", message], cwd=repo_dir, capture_output=True, text=True)
+        res = subprocess.run(["git", "commit", "-m", final_message], cwd=repo_dir, capture_output=True, text=True)
         print(res.stdout.strip() or res.stderr.strip())
+
+    elif action == "push":
+        res_branch = subprocess.run(["git", "branch", "--show-current"], cwd=repo_dir, capture_output=True, text=True)
+        current_branch = res_branch.stdout.strip()
+        if not current_branch:
+            print("[ERROR] Could not determine active branch for git push")
+            return
+        print(f"[INFO] Pushing branch '{current_branch}' to origin...")
+        res = subprocess.run(["git", "push", "-u", "origin", current_branch], cwd=repo_dir, capture_output=True, text=True)
+        if res.returncode == 0:
+            print(f"[PASS] Successfully pushed '{current_branch}' to remote GitHub repository.")
+            if res.stdout.strip():
+                print(res.stdout.strip())
+        else:
+            print(f"[ERROR] Failed to push to remote:\n{res.stderr.strip() or res.stdout.strip()}")
+
     elif action == "status":
         res = subprocess.run(["git", "status", "--short", "--branch"], cwd=repo_dir, capture_output=True, text=True)
         print(res.stdout.strip())
+
     elif action == "main":
         res = subprocess.run(["git", "checkout", "main"], cwd=repo_dir, capture_output=True, text=True)
         print(res.stdout.strip() or res.stderr.strip())
 
 def check_system_status():
-    """Check connectivity to Ollama and presence of GitHub Token."""
+    """Check connectivity to Ollama, presence of GitHub Token, and Git repository state."""
     print("\n--- Diagnostic Pipeline Status ---")
     
     # 1. Ollama Check
     ollama_resp = query_ollama("Respond with 'PONG'", model="qwen2.5-coder:1.5b")
-    if "ERROR" in ollama_resp:
+    if "Connection refused" in ollama_resp or "[Errno 111]" in ollama_resp:
+        print("  🟡 Ollama Status: Offline or isolated in IDE sandbox ([Errno 111] Connection refused)")
+        print("     💡 Note: Sandbox isolates network namespace. Run directly in host terminal to reach 'ollama serve'.")
+    elif "ERROR" in ollama_resp:
         print(f"  🔴 Ollama Status: {ollama_resp}")
     else:
         print(f"  🟢 Ollama Status: Online (qwen2.5-coder:1.5b operational)")
@@ -209,13 +281,23 @@ def check_system_status():
     if token:
         masked = token[:4] + "*" * (len(token) - 8) + token[-4:]
         print(f"  🟢 GitHub Token: Detected ({masked})")
+        print("     💡 GitHub Models: models.inference.ai.azure.com (accessible via host terminal)")
     else:
         print(f"  🔴 GitHub Token: Not found in GITHUB_TOKEN or ~/.git-credentials")
 
-    # 3. Git Status
-    res = subprocess.run(["git", "branch", "--show-current"], cwd=FALLOUT_ROOT, capture_output=True, text=True)
-    current_branch = res.stdout.strip() or "unknown"
+    # 3. Git Status & Remote
+    res_branch = subprocess.run(["git", "branch", "--show-current"], cwd=FALLOUT_ROOT, capture_output=True, text=True)
+    current_branch = res_branch.stdout.strip() or "unknown"
+    
+    res_remote = subprocess.run(["git", "remote", "get-url", "origin"], cwd=FALLOUT_ROOT, capture_output=True, text=True)
+    remote_url = res_remote.stdout.strip() or "none"
+
+    res_stat = subprocess.run(["git", "status", "-sb"], cwd=FALLOUT_ROOT, capture_output=True, text=True)
+    stat_summary = res_stat.stdout.strip().split("\n")[0] if res_stat.stdout.strip() else ""
+
     print(f"  🟢 Active Git Branch: {current_branch}")
+    print(f"  🌐 Remote Origin: {remote_url}")
+    print(f"  📊 Branch Status: {stat_summary}")
     print("----------------------------------\n")
 
 def main():
@@ -226,8 +308,10 @@ def main():
     parser.add_argument("--file", type=str, help="Path to file containing prompt/code")
     parser.add_argument("--system", type=str, help="Optional custom system prompt")
     parser.add_argument("--audit", type=str, help="Path or name of staging directory to audit (e.g. staging_rexford_romance)")
+    parser.add_argument("--audit-all", action="store_true", help="Audit all staging_* directories in F4 modding")
     parser.add_argument("--branch", type=str, help="Create and switch to feature/<branch> in git")
-    parser.add_argument("--commit", type=str, help="Stage and commit changes on current branch")
+    parser.add_argument("--commit", type=str, help="Stage and commit changes on current branch (with auto-prefix)")
+    parser.add_argument("--push", action="store_true", help="Push active branch to remote GitHub repository (origin)")
     parser.add_argument("--status", action="store_true", help="Display diagnostic pipeline and git status")
     parser.add_argument("--to-main", action="store_true", help="Switch back to main git branch")
 
@@ -243,6 +327,10 @@ def main():
 
     if args.branch:
         git_branch_manager("create", branch_name=args.branch)
+
+    if args.audit_all:
+        audit_all_staging_directories()
+        return
 
     if args.audit:
         staging_path = MODDING_DIR / args.audit if not Path(args.audit).is_absolute() else Path(args.audit)
@@ -267,6 +355,9 @@ def main():
 
     if args.commit:
         git_branch_manager("commit", message=args.commit)
+
+    if args.push:
+        git_branch_manager("push")
 
 if __name__ == "__main__":
     main()
