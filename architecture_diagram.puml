@@ -1,0 +1,106 @@
+@startuml
+!theme plain
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam defaultFontName "Liberation Sans", "DejaVu Sans", "Helvetica", Arial
+skinparam defaultFontSize 12
+skinparam nodesep 50
+skinparam ranksep 45
+
+title <b>ЦІЛІСНА МУЛЬТИМОДАЛЬНА АРХІТЕКТУРА ДОСЛІДНИЦЬКОГО КОМПЛЕКСУ</b>\nДослідження регуляції кортизолу та вегетативної стабілізації засобами безшовного геймплею (1 мс Master Hub)
+
+' =================== СУБ'ЄКТ ДОСЛІДЖЕННЯ ===================
+package "ДОСЛІДЖУВАНИЙ / ГРАВЕЦЬ" as SubjectPkg #E8F4F8 {
+    actor "Гравець (Ветеран / Фахівець)" as User #333333
+    card "🫀 Груди: Polar H10\n(Нагрудний ЕКГ-ремінь)" as PolarSensor #FFD1D1
+    card "🩸 Плече: LinX CGM\n(Датчик глюкози)" as LinxSensor #FFE2B2
+    card "🎧 Голова: Logitech Zone Vibe 100\n(Бездротова гарнітура)" as HeadsetHW #E2D9F3
+    card "🎮 Руки: DualShock 4\n(Стіки, курки, тачпад, гіро)" as ControllerHW #D5E8D4
+    card "🦶 Ноги: PCsensor FootSwitch\n(USB HID педаль)" as FootPedalHW #D5E8D4
+
+    User -down-> PolarSensor : ЕКГ-потенціал
+    User -down-> LinxSensor : Міжклітинна рідина
+    User -down-> HeadsetHW : Голос (Think-Aloud)
+    User -down-> ControllerHW : Моторика пальців (100-250 Гц)
+    User -down-> FootPedalHW : Ножне перемикання
+}
+
+' =================== МОБІЛЬНИЙ МІСТ ===================
+package "МОБІЛЬНИЙ МІСТ (SMARTPHONE)" as MobilePkg #FFF2CC {
+    component "Додаток LinX CGM" as LinxApp
+    component "xDrip+ Engine\n(Мікросервер)" as XDripServer #FFF7B2
+    port "Local REST API\nPort 17580" as RestPort
+
+    LinxSensor -right-> LinxApp : BLE (Bluetooth щохвилини)
+    LinxApp -down-> XDripServer : Companion App Service
+    XDripServer -down-> RestPort : JSON Endpoint (/sgv.json)
+}
+
+' =================== НОУТБУК ТА СИСТЕМА ===================
+node "НОУТБУК HP (Intel Core 3 100U | Debian 13)" as LaptopNode #F5F5F5 {
+
+    package "ПІДСИСТЕМА ГРИ ТА ВІЗУАЛІЗАЦІЇ (DUAL-DISPLAY)" as DisplaySubsys #FFFFFF {
+        component "Fallout 4 PC (Proton / Gamescope)\n[Creation Engine]" as GameEngine #D0E1FD
+        component "F4SE / Papyrus Hooks\n(Логи консолі рушія)" as EngineLogs #E1D5E7
+        component "Консоль розробника (~)\n[Пряме керування та діагностика]" as DevConsole #E1D5E7
+
+        GameEngine -down-> EngineLogs : Real-time події
+        DevConsole -up-> GameEngine : Діагностика/скидання
+    }
+
+    package "ЦЕНТРАЛЬНИЙ ХАБ СИНХРОНІЗАЦІЇ 1 мс (PYTHON REAL-TIME HUB)" as HubPkg #EBF1F5 {
+        component "High-Res Clock\n(clock_gettime: 1 ms Epoch)" as MasterClock #FFE6CC
+        component "Polar BLE Ingestion\n(R-R точність: 0.976 мс)" as PolarWorker
+        component "Cardiac Phase Classifier\n[Систола: 0-350мс | Діастола]" as CardiacClassifier #FFCCCC
+        component "Motorics Ingestion\n(evdev 250 Гц + Tremor 8-12 Гц)" as MotorWorker
+        component "Engine IPC Listener\n(Події бою, урон, квести)" as EngineWorker
+        component "Voice Audio Monitor\n(Pulse/ALSA 16-44.1 кГц)" as VoiceWorker
+        component "CGM Poller\n(Wi-Fi REST Client 1/хв)" as CGMWorker
+
+        queue "Thread-Safe Circular Buffer\n(Кільцевий буфер 1 мс зрізів)" as SyncQueue #D5E8D4
+
+        MasterClock -down-> SyncQueue : Absolute ms Time
+        PolarWorker -down-> CardiacClassifier : R-wave peaks
+        CardiacClassifier -down-> SyncQueue : Фаза циклу + RMSSD
+        MotorWorker -down-> SyncQueue : Координати, Jitter, L2/R2
+        EngineWorker -down-> SyncQueue : Ігрові тригери
+        VoiceWorker -down-> SyncQueue : Акустичний RMS, таймкоди
+        CGMWorker -down-> SyncQueue : Рівень цукру, dG/dt
+    }
+
+    package "СХОВИЩЕ ДАНИХ ТА ШІ-АНАЛІТИКА" as AIPkg #E1D5E7 {
+        database "1 ms Master Dataset\n(Parquet / JSONL)" as MasterStorage #DAE8FC
+        component "AI Feature Extraction Engine\n• Neurocardiac Gating\n• Psychomotor Latency (P300)\n• Aim Tremor Spectrum\n• Flow / Cortisol Burnout Index" as AIEngine #D5E8D4
+        component "Генератор наукових звітів\n(Статистика, p-values, графіки)" as ReportGen
+        
+        SyncQueue -down-> MasterStorage : Стрім даних (1 мс)
+        MasterStorage -down-> AIEngine : Навчання / Аналіз
+        AIEngine -down-> ReportGen : Публікація в Q1 журналі
+    }
+}
+
+' =================== ЗОВНІШНІ ПЕРИФЕРІЙНІ ПРИСТРОЇ ===================
+node "ВЕЛИКИЙ ЕКРАН / ТВ" as TVDisplay #D0E1FD {
+    card "🎮 Повний екран (1080p / 60 FPS)\nІмерсивний безшовний геймплей" as TVScreen
+}
+
+node "ЕКРАН НОУТБУКА (eDP-1)" as LaptopScreen #FFF2CC {
+    card "📊 LIVE RESEARCH DASHBOARD\n• Пульсограма та RMSSD (HRV)\n• Глікемічна крива LinX\n• Радар тремору прицілу\n• Живий лог подій Papyrus" as DashboardUI
+}
+
+' =================== ФІЗИЧНІ ЗВ'ЯЗКИ ТА ПОТОКИ ===================
+' Датчики до ноутбука
+PolarSensor ==> PolarWorker : Direct Bluetooth LE (0x180D)\nR-R інтервали (0.976 мс)
+HeadsetHW <== GameEngine : Звук гри (Bluetooth A2DP/mSBC)
+HeadsetHW ==> VoiceWorker : Мікрофон (Think-Aloud коментарі)
+ControllerHW ==> MotorWorker : USB / Bluetooth (evdev 250 Гц)
+FootPedalHW ==> MotorWorker : USB HID (Ножний клік)
+
+' Смартфон до ноутбука
+RestPort ==> CGMWorker : Домашній Wi-Fi (192.168.0.x)\nHTTP GET щохвилини
+
+' Відеовиходи
+GameEngine ==> TVScreen : Кабель HDMI-1 (Gamescope Fullscreen)
+SyncQueue ..> DashboardUI : WebSocket / Local IPC (Жива телеметрія)
+
+@enduml

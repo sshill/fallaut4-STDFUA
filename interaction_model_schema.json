@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Fallout4_HandsOnArchitect_InteractionModel",
+  "version": "1.0.0",
+  "description": "Формалізована модель взаємодії гравця 'Hands-on Architect' з механіками Fallout 4 та AI-асистентом на основі аналізу журналу Gemeni fallaut chat.",
+  "player_profile": {
+    "archetype": "AI-Driven Hands-on Architect",
+    "faction_alignment": "Institute Director",
+    "special": {
+      "strength": { "base": 5, "in_power_armor": 11 },
+      "perception": { "base": 4, "target": 6 },
+      "endurance": { "base": 4, "target": 5 },
+      "charisma": { "base": 6, "buffed": 22, "key_items": ["The Dapper Gent", "Grape Mentats", "Clean Suit"] },
+      "intelligence": { "base": 10, "target": 12, "key_items": ["Institute White X-02 Paint"] },
+      "agility": { "base": 10, "target": 12, "key_items": ["Military Fatigues", "Oswald's Top Hat"] },
+      "luck": { "base": 5, "target": 8 }
+    },
+    "key_perks": [
+      "Nuclear Physicist (Rank 3)",
+      "Robotics Expert (Rank 2)",
+      "Local Leader (Rank 2)",
+      "Science! (Rank 4)",
+      "Armorer (Rank 4)",
+      "Gun Nut (Rank 4)",
+      "Hacker (Rank 3)",
+      "Locksmith (Rank 3)",
+      "Heavy Gunner",
+      "Ninja",
+      "Hunter's Wisdom (Longfellow)",
+      "Ace Operator (Nuka-World)",
+      "Chosen Disciple (Nuka-World)"
+    ],
+    "economic_status": {
+      "caps_reserve": 80000,
+      "fusion_cores_reserve": 72,
+      "primary_export": "Purified Water"
+    }
+  },
+  "combat_contours": {
+    "contour_a_juggernaut": {
+      "name": "Heavy Armored Juggernaut",
+      "power_armor": "X-02 (Institute White Paint, Jetpack, Calibrated Shocks)",
+      "primary_weapon": "Gatling Laser (Overcharged, Beam Focuser)",
+      "companion": "Ada (Assaultron legs, Gatling Laser, Hydraulic Armor)",
+      "tactical_role": "Frontal assault, wave clearing, anti-Brotherhood battles"
+    },
+    "contour_b_noir_infiltrator": {
+      "name": "Noir Ghost Infiltrator",
+      "armor": "Military Fatigues (+2 AGI) + Shadowed Polymer Combat Armor",
+      "headgear": "Oswald's Top Hat (+1 AGI, +10% speed) / The Dapper Gent (+2 CHR)",
+      "primary_weapon": "The Problem Solver / Splattercannon (Silenced, Scope)",
+      "tactical_role": "Single-target execution, stealth infiltrations, zero collateral damage"
+    }
+  },
+  "settlement_defense_spec": {
+    "formula": "Attack_Chance = (Food + Water)/10 - Defense/2 + 2",
+    "minimum_defense_threshold": 50,
+    "fortified_hub_defense_threshold": 84,
+    "tower_architecture": {
+      "tier_1_top": "Missile Turrets (360 degree long-range coverage)",
+      "tier_2_mid": "Heavy Laser Turrets (close-range blindspot coverage)",
+      "base": "Compact fenced generator enclosure protecting power units without blocking fire arcs"
+    },
+    "crop_standard": "Mutfruit (1.0 food per plant, 6 plants per settler)",
+    "uniform_standard": {
+      "farmers": "Surveyor Outfit",
+      "guards_and_merchants": "Clean Synth Armor"
+    }
+  },
+  "geopolitical_strategy": {
+    "institute": {
+      "role": "Sovereign Home & Endgame Victor",
+      "status": "Director",
+      "policies": ["Open Diamond City Presence", "Synth Road Checkpoints", "Humane Scientific Progress"]
+    },
+    "brotherhood_of_steel": {
+      "role": "Exploited Instrument",
+      "strategy": "Assist until Liberty Prime pre-final stage, then inject Institute virus and wipe at Boston Airport"
+    },
+    "minutemen": {
+      "role": "Initial Settlement Facilitator",
+      "strategy": "Collect settlements, establish trade routes, exile Preston Garvey to Finch Farm"
+    },
+    "far_harbor": {
+      "role": "Technocratic Peacekeeper",
+      "strategy": "Save Kasumi, preserve Acadia, obtain Marine Armor, solve Vault 118 Brain Dead quest"
+    },
+    "nuka_world": {
+      "role": "Raider Gambit",
+      "strategy": "Ally with Operators and Disciples, assign 3 child-free vassal farms and 3 empty outposts, obtain perks, then execute Open Season"
+    }
+  },
+  "ai_copilot_rules": [
+    "Always provide exact location names in both Ukrainian and English.",
+    "Explicitly warn of any faction Points of No Return prior to advising on quest dialogues.",
+    "Deliver mathematically verified building formulas (power, defense, happiness).",
+    "Respect the 'Hands-on Architect' tone: concise, structured, pragmatic, and aesthetically elevated."
+  ]
+}

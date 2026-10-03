@@ -1,0 +1,7 @@
+// Fallout 4 Papyrus User Flags
+Flag Hidden 0 { Script Property Variable }
+Flag Conditional 1 { Script Variable Property }
+Flag Mandatory 2 { Property }
+Flag CollapsedOnBase 3 { Script }
+Flag CollapsedOnRef 4 { Script }
+Flag Default 5 { Property }

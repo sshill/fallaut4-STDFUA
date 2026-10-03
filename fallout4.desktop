@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Fallout 4 GOTY
+GenericName=Fallout 4 (UA)
+Comment=Fallout 4 GOTY Research Stand (Ukrainian + DualShock 4)
+Exec=/home/hills/Documents/fallaut/launch_fallout4.sh
+Icon=/home/hills/Documents/fallaut/fallout4.png
+Path=/home/hills/Documents/fallaut/game
+Terminal=false
+StartupNotify=false
+Categories=Game;RolePlaying;

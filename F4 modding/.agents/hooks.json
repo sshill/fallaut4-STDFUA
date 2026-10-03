@@ -1,0 +1,17 @@
+{
+  "audio-signals": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 ./scripts/signal_request.py"
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 ./scripts/signal_finish.py"
+      }
+    ]
+  }
+}

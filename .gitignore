@@ -1,0 +1,56 @@
+# ==========================================
+# Fallout 4 Modding & Tools .gitignore
+# ==========================================
+
+# 1. Base Game & Heavy Engine Directories (35GB+)
+game/
+prefix/
+.wine/
+F4\ modding/.wine/
+
+# 2. Binary Models, Media & Image Captures (500MB+)
+models/
+screens/
+*.png
+*.jpg
+*.jpeg
+*.xwd
+
+# 3. Cache, Research Data & Scratch
+cache/
+aidex_logs/
+research_data/
+scratch/
+installer/**/*.exe
+installer/**/*.zip
+
+# 4. Environments & Compiler Caches
+.venv/
+__pycache__/
+F4\ modding/__pycache__/
+*.py[cod]
+*$py.class
+
+# 5. Game Saves & Heavy Archives
+*.fos
+*.ba2
+*.esm
+
+# 6. Logs & Runtime Dumps
+*.log
+*.xlog
+*.log.txt
+AiDEX_*
+dump_*.xml
+extracted_chat_text.txt
+companion_mentions_context.txt
+all_user_queries.txt
+
+# 7. Heavy Document & External Binaries
+*.docx
+*.pdf
+*.apk
+*.jar
+*.so
+\!xbex*
+screen.xwd

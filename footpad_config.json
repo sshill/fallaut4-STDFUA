@@ -1,0 +1,26 @@
+{
+  "left": {
+    "scancode": 16,
+    "name": "KEY_Q",
+    "action": "sprint",
+    "desc": "Ліва педаль: Біг / Спринт",
+    "keyboard_key": 42,
+    "gamepad_btn": 317
+  },
+  "middle": {
+    "scancode": 33,
+    "name": "KEY_F",
+    "action": "jump_jetpack",
+    "desc": "Середня педаль: Стрибок / Джетпак",
+    "keyboard_key": 57,
+    "gamepad_btn": 308
+  },
+  "right": {
+    "scancode": 42,
+    "name": "KEY_LEFTSHIFT",
+    "action": "crouch",
+    "desc": "Права педаль: Присісти / Скритність (Hold to Crouch)",
+    "keyboard_key": 29,
+    "gamepad_btn": 318
+  }
+}
