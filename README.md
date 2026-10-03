@@ -13,7 +13,7 @@
 [![ICD Protobuf](https://img.shields.io/badge/ICD-Protocol%20Buffers%20v3-purple?logo=google)](proto/telemetry_bus.proto)
 [![Graphics](https://img.shields.io/badge/Graphics-Vulkan%201.3%20%7C%20FSR%2060FPS-red?logo=vulkan)](launch_fallout4.sh)
 [![Sensors](https://img.shields.io/badge/BLE%20GATT-Polar%20H10%20%7C%20CGM%20LinX-lightgrey?logo=bluetooth)](cgm_adb_bridge.py)
-[![CI / HIL](https://img.shields.io/badge/CI%20%2F%20HIL-Headless%20Emulation-success?logo=githubactions)](.github/workflows/ci.yml)
+[![CI / HIL](https://img.shields.io/badge/CI%20%2F%20HIL-Headless%20Emulation-success?logo=githubactions)](ci/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
@@ -24,6 +24,7 @@
 [ 📐 **PlantUML Architecture Diagram** ](architecture_diagram.puml)  
 [ 📜 **Interface Control Document (ICD Proto)** ](proto/telemetry_bus.proto) &nbsp;|&nbsp; 
 [ 🧪 **HIL Mock Feeder Benchmark** ](tests/mock_hardware_feeder.py) &nbsp;|&nbsp; 
+[ 🎮 **Committer & Tester Setup Guide (GOTY v1.10.163.0)** ](docs/SETUP_GUIDE.md) &nbsp;|&nbsp; 
 [ 🗺️ **Grand Campaign Expansion Model** ](grand_campaign_expansion_model.md)
 
 ---
@@ -191,18 +192,44 @@
 | :--- | :---: | :--- | :--- |
 | **`proto/telemetry_bus.proto`** | `v1.0` | Формальний контракт 1-мс телеметричного кадру шини. | **Готово:** Повна валідація синтаксису, інтегровано в CI. |
 | **`tests/mock_hardware_feeder.py`** | `v1.0` | HIL емуляційний тест та бенчмарк джиттера без заліза. | **Готово:** Проходить тестування із затримкою $<20$ мкс. |
-| **`.github/workflows/ci.yml`** | `v1.0` | Автоматизований CI/CD конвеєр перевірки коду та ICD. | **Готово:** Налаштовано автоматичний запуск на GitHub. |
+| **`ci/ci.yml`** | `v1.0` | Автоматизований CI/CD конвеєр перевірки коду та ICD. | **Готово:** Специфікація автоматичного запуску. |
 | **`RexfordRomance`** | `v0.2` | Розширена сюжетна та романтична лінія (Hotel Rexford). | **Готово:** Усунуто збій зв'язування сцени `MagnoliaMorningTopic`. |
 | **`EllieRomance`** | `v0.2` | Сюжетна та романтична лінія Еллі Перкінс. | **Готово:** Ліквідовано зависання консольної ін'єкції у детективному агентстві. |
 | **`MercyRecruitment`** | `v0.1` | Система вербування лідерів Стрільців (Шеллі Тіллер). | **Готово:** Базовий білд плагіна та скрипти Papyrus (`.pex`). |
 | **`GentlemanOutfitReskin`** | `v1.0` | Модульний рескін смокінга та костюмів персонажів. | **Готово:** Повністю робочий плагін та генератор збірки. |
-| **`f4_pipeline_router.py`** | `v1.1` | Гібридний ШІ-роутер (Ollama + GitHub Models) та Git-пайплайн. | **Готово:** Автоматизація білдів, аудитів та мережевого push. |
+| **`f4_pipeline_router.py`** | `v1.2` | Гібридний ШІ-роутер (Ollama + GitHub Models), збірник пакетів `--assemble` та Git-пайплайн. | **Готово:** Повна автоматизація збірки з валідацією через Ollama. |
 
 ---
 
 ## 6. 🤝 Ліцензія та участь у проєкті
 
 Проєкт відкрито для дослідників, ветеранів та розробників на умовах **[MIT License](LICENSE)**.
+
+---
+
+## 7. 🕹️ Інструкція для комітерів та тестерів (Fallout 4 GOTY v1.10.163.0 + Модуль українізації)
+
+Для забезпечення стабільної роботи скриптового рушія Papyrus та сумісності плагінів усі розробники та тестери повинні використовувати виключно стандартизоване середовище:
+
+* **Цільова версія гри:** **Fallout 4: Game of the Year Edition (GOTY) v1.10.163.0 (64-bit)** (GOG build `56699004712175290` або Steam pre-nextgen depot). Всі 6 офіційних DLC (`DLCCoast`, `DLCNukaWorld`, `DLCRobot`, `DLCworkshop01-03`) є обов'язковими. Next-Gen оновлення (1.10.980+) не підтримуються через несумісність Papyrus API.
+* **Модуль українізації (Ukrainian Localization):**
+  * Повна текстова та інтерфейсна українізація (файли `Strings/*_en.strings`, `_en.dlstrings`, `_en.ilstrings` та `Interface/Translate_en.txt`).
+  * Підтримка українських літер `Ґ, Є, І, Ї` у шрифтах (`Interface/FontConfig.txt` та `fonts_en.swf`).
+  * Працює нативно при `sLanguage=en` у `Fallout4Custom.ini` з повним збереженням англійських FormID та консольних команд.
+* **Розгортання на Linux (Wine/Proton):**
+  * Префікс `WINEARCH=win64`, DXVK 2.6, права доступу до `/dev/uinput` (`chmod 666 /dev/uinput`).
+  * Запуск рушія через системний раннер: `./launch_fallout4.sh`.
+* **Розгортання на Windows:**
+  * Каталог гри `<Fallout4_Root>\Data\`, конфігурація `%USERPROFILE%\Documents\My Games\Fallout4\Fallout4Custom.ini`.
+* **Збирання модів з локальною Ollama та контроль Git через Python:**
+  ```bash
+  # Автоматичний збір файлів зі staging_*, генерація маніфесту та ШІ-перевірка через Ollama (qwen2.5-coder)
+  python3 "F4 modding/f4_pipeline_router.py" --assemble
+
+  # Синхронізація зібраних плагінів безпосередньо у game/Data для тестування
+  python3 "F4 modding/f4_pipeline_router.py" --assemble --deploy-game
+  ```
+* 📖 **Детальний покроковий посібник:** Дивіться [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md).
 
 ---
 ---
@@ -364,15 +391,42 @@ Overcoming the artificial faction mutual-destruction constraints of *Fallout 4*,
 | :--- | :---: | :--- | :--- |
 | **`proto/telemetry_bus.proto`** | `v1.0` | Formal 1-ms deterministic telemetry frame ICD. | **Complete:** Fully validated schema, integrated in CI. |
 | **`tests/mock_hardware_feeder.py`** | `v1.0` | Headless HIL emulation harness & jitter benchmark. | **Complete:** Fully passing, $<20$ µs mean latency. |
-| **`.github/workflows/ci.yml`** | `v1.0` | GitHub Actions CI workflow for ICD & HIL verification. | **Complete:** Configured for automated push/PR runs. |
+| **`ci/ci.yml`** | `v1.0` | GitHub Actions CI workflow for ICD & HIL verification. | **Complete:** Configured for automated push/PR runs. |
 | **`RexfordRomance`** | `v0.2` | Extended narrative arc for Hotel Rexford. | **Complete:** Resolved SCEN subtype binding fault. |
 | **`EllieRomance`** | `v0.2` | Ellie Perkins romance and companion arc. | **Complete:** Fixed interior cell console stall in detective agency. |
 | **`MercyRecruitment`** | `v0.1` | Gunner recruitment system and unique perks. | **Complete:** Compiled Papyrus scripts (`.pex`) and `.esp` baseline. |
 | **`GentlemanOutfitReskin`** | `v1.0` | Tuxedo reskin and modular visual overrides. | **Complete:** Functional mod and automated build script. |
-| **`f4_pipeline_router.py`** | `v1.1` | Hybrid AI Router (Ollama + GitHub Models) & Git manager. | **Complete:** Automated builds, audits, and remote push. |
+| **`f4_pipeline_router.py`** | `v1.2` | Hybrid AI Router (Ollama + GitHub Models), `--assemble` packager & Git pipeline. | **Complete:** Automated builds, audits, and Ollama validation. |
 
 ---
 
 ## 6. 🤝 Contributing & License
 
 This project is open-source under the **[MIT License](LICENSE)**. Contributions from researchers, veterans, modders, and systems engineers are welcome.
+
+---
+
+## 7. 🕹️ Committer & Tester Setup Guide (Fallout 4 GOTY v1.10.163.0 + Ukrainization Module)
+
+To guarantee deterministic Papyrus script performance and full plugin cross-compatibility, all contributors and QA testers must adhere to the standardized runtime specification:
+
+* **Target Game Build:** **Fallout 4: Game of the Year Edition (GOTY) v1.10.163.0 (64-bit)** (GOG build `56699004712175290` or Steam pre-nextgen depot). All 6 official DLCs (`DLCCoast`, `DLCNukaWorld`, `DLCRobot`, `DLCworkshop01-03`) are mandatory. Next-Gen updates (1.10.980+) are strictly prohibited due to broken Papyrus engine hooks.
+* **Ukrainization Module:**
+  * Complete Ukrainian text and interface localization (`Strings/*_en.strings`, `_en.dlstrings`, `_en.ilstrings` and `Interface/Translate_en.txt`).
+  * Native rendering of Ukrainian characters (`Ґ, Є, І, Ї, ґ, є, і, ї`) via `Interface/FontConfig.txt` and `fonts_en.swf`.
+  * Activated seamlessly under `sLanguage=en` in `Fallout4Custom.ini` preserving console scripting stability.
+* **Linux Deployment (Wine / Proton):**
+  * 64-bit Wine prefix, DXVK 2.6 translation, `/dev/uinput` permissions (`chmod 666 /dev/uinput`).
+  * Production launch via `./launch_fallout4.sh`.
+* **Windows Deployment:**
+  * Deploy compiled plugins (`.esp`) and scripts (`.pex`) into `<Fallout4_Root>\Data\`.
+  * Configure `%USERPROFILE%\Documents\My Games\Fallout4\Fallout4Custom.ini`.
+* **Local Mod Assembly & Ollama AI Git Build Control via Python:**
+  ```bash
+  # Assemble staging_* files into dist/, generate build_manifest.json and verify via local Ollama
+  python3 "F4 modding/f4_pipeline_router.py" --assemble
+
+  # Assemble and sync directly into game/Data for immediate testing
+  python3 "F4 modding/f4_pipeline_router.py" --assemble --deploy-game
+  ```
+* 📖 **Comprehensive Step-by-Step Guide:** See [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md).

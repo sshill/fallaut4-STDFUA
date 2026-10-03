@@ -1,0 +1,147 @@
+{
+  "timestamp_utc": "2026-10-03T12:22:51.338095+00:00",
+  "game_version": "1.10.163.0",
+  "target_directory": "/home/hills/Documents/fallaut/dist/mod_pack_v1.10.163",
+  "modules": [
+    {
+      "name": "staging_ellie_romance",
+      "esp": "EllieRomance.esp",
+      "pex_files": [
+        "EllieWardrobeChestScript.pex",
+        "EllieRomanceEncounterScript.pex",
+        "TestEllie.pex",
+        "TestQuick.pex",
+        "TestSimple.pex"
+      ],
+      "psc_files": [
+        "TestQuick.psc",
+        "TestSimple.psc",
+        "EllieWardrobeChestScript.psc",
+        "EllieRomanceEncounterScript.psc",
+        "TestEllie.psc"
+      ],
+      "recompile_needed": [
+        "TestQuick.psc"
+      ]
+    },
+    {
+      "name": "staging_gentleman_outfit",
+      "esp": "GentlemanOutfitReskin.esp",
+      "pex_files": [],
+      "psc_files": [],
+      "recompile_needed": []
+    },
+    {
+      "name": "staging_mercy_recruitment",
+      "esp": "MercyRecruitment.esp",
+      "pex_files": [
+        "ShellyTillerRecruitScript.pex",
+        "MercyRecruitmentQuestScript.pex",
+        "MercyRecruitmentPerkScript.pex"
+      ],
+      "psc_files": [
+        "PRKF_Intimidation01_001D02B5.psc",
+        "SF_WorkshopRecruitSheffield_0005E1EE.psc",
+        "workshopnpcscript.psc",
+        "workshopobjectscript.psc",
+        "ReferenceAlias.psc",
+        "MercyRecruitmentQuestScript.psc",
+        "RefCollectionAlias.psc",
+        "LocationAlias.psc",
+        "PRKF_Cannibal_0004B259.psc",
+        "ShellyTillerRecruitScript.psc",
+        "workshopdatascript.psc",
+        "workshopscript.psc",
+        "LeveledItem.psc",
+        "MercyRecruitmentPerkScript.psc",
+        "followersscript.psc"
+      ],
+      "recompile_needed": [
+        "PRKF_Intimidation01_001D02B5.psc",
+        "SF_WorkshopRecruitSheffield_0005E1EE.psc",
+        "workshopnpcscript.psc",
+        "workshopobjectscript.psc",
+        "ReferenceAlias.psc",
+        "RefCollectionAlias.psc",
+        "LocationAlias.psc",
+        "PRKF_Cannibal_0004B259.psc",
+        "workshopdatascript.psc",
+        "workshopscript.psc",
+        "LeveledItem.psc",
+        "followersscript.psc"
+      ]
+    },
+    {
+      "name": "staging_rexford_romance",
+      "esp": "RexfordRomance.esp",
+      "pex_files": [
+        "RexfordRomanceEncounterScript.pex"
+      ],
+      "psc_files": [
+        "RexfordRomanceEncounterScript.psc"
+      ],
+      "recompile_needed": []
+    }
+  ],
+  "collected_esps": [
+    "EllieRomance.esp",
+    "GentlemanOutfitReskin.esp",
+    "MercyRecruitment.esp",
+    "RexfordRomance.esp"
+  ],
+  "collected_pex": [
+    "EllieWardrobeChestScript.pex",
+    "EllieRomanceEncounterScript.pex",
+    "TestEllie.pex",
+    "TestQuick.pex",
+    "TestSimple.pex",
+    "ShellyTillerRecruitScript.pex",
+    "MercyRecruitmentQuestScript.pex",
+    "MercyRecruitmentPerkScript.pex",
+    "RexfordRomanceEncounterScript.pex"
+  ],
+  "file_checksums_sha256": {
+    "EllieRomance.esp": "c953d92616df5ef1d7bfe1510f73073a54270894d5d90fcd992ca34d3da7fbb0",
+    "Scripts/EllieWardrobeChestScript.pex": "56d6fbc0b8bbe3b51d1f6176d7370c31e48f0a58ada9b4ff1da71e3e0c1fd504",
+    "Scripts/EllieRomanceEncounterScript.pex": "390c78c504b1a0914f69cb4db2ce3a9bb9504d1ce7485efc430497cd790ba3de",
+    "Scripts/TestEllie.pex": "956f2495328441178bc05dc479fb817f65518c3ddcd33a7d69a3126a2974369d",
+    "Scripts/TestQuick.pex": "42d20eb9d572e91d6be46dec727abbec1f3ccce3b61d149077af2672fe99bbff",
+    "Scripts/TestSimple.pex": "40b0c4e077f74c75773f938df63ef3944833c257b022dffec6a1c06d1db438b3",
+    "GentlemanOutfitReskin.esp": "55fed6454c252229aee3cb490abddfe38617abb892fcb621ee5fbd6baa60e8d7",
+    "MercyRecruitment.esp": "9c7b49db7dd5301173986d4121196da7d1f6228844650ed6d037eb2277c007ea",
+    "Scripts/ShellyTillerRecruitScript.pex": "dbd1ce8682df421c9e8f0e26ee14b097675a95bc8be40b0e98e51a45d9339da5",
+    "Scripts/MercyRecruitmentQuestScript.pex": "f280384444793de39d205bb4b46934b5b4a0a9f3ba0d7770d7bed9e7cbf6f8a6",
+    "Scripts/MercyRecruitmentPerkScript.pex": "61b6580d2ff5c4043ef133e71e6026c36e33ee47a673981232f48e3941ac8680",
+    "RexfordRomance.esp": "9b7f3cf9c3a48cdc8b091830c284174a143ac6bfed414402ae2f07848947f94f",
+    "Scripts/RexfordRomanceEncounterScript.pex": "ed95718d7bd039db6789e31fdccfe35f10ce1e094696826edc9d20a00a4736d3",
+    "Ukrainization/FontConfig.txt": "a9eb86764aa93adcc1653dc3efc7bb728bd6e12494ff176460ee4b232224f60b"
+  },
+  "ukrainization": {
+    "supported": true,
+    "target_language": "Ukrainian (uk_UA)",
+    "encoding_glyphs": [
+      "Ґ",
+      "Є",
+      "І",
+      "Ї",
+      "ґ",
+      "є",
+      "і",
+      "ї"
+    ],
+    "font_config_present": true,
+    "strings_present": true
+  },
+  "ai_verification": {
+    "audit_status": "PASS",
+    "verified_plugins": [
+      "staging_ellie_romance.esp",
+      "staging_gentleman_outfit.esp",
+      "staging_mercy_recruitment.esp",
+      "staging_rexford_romance.esp"
+    ],
+    "integrity_verdict": "All plugins are verified and have no known issues.",
+    "git_release_tag": "v1.10.163-modpack-release",
+    "ai_engine": "ollama_qwen2.5-coder:1.5b"
+  }
+}
