@@ -13,7 +13,7 @@
 [![ICD Protobuf](https://img.shields.io/badge/ICD-Protocol%20Buffers%20v3-purple?logo=google)](proto/telemetry_bus.proto)
 [![Graphics](https://img.shields.io/badge/Graphics-Vulkan%201.3%20%7C%20FSR%2060FPS-red?logo=vulkan)](launch_fallout4.sh)
 [![Sensors](https://img.shields.io/badge/BLE%20GATT-Polar%20H10%20%7C%20CGM%20LinX-lightgrey?logo=bluetooth)](cgm_adb_bridge.py)
-[![CI / HIL](https://img.shields.io/badge/CI%20%2F%20HIL-Headless%20Emulation-success?logo=githubactions)](ci/ci.yml)
+[![CI / HIL](https://img.shields.io/badge/CI%20%2F%20HIL-Headless%20Emulation-success?logo=githubactions)](.github/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
@@ -93,7 +93,7 @@
      ```bash
      python3 tests/mock_hardware_feeder.py --frames 1000 --rate-hz 250
      ```
-3. **Автоматизований CI/CD конвеєр:** [`ci/ci.yml`](ci/ci.yml)
+3. **Автоматизований CI/CD конвеєр:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
    * Виконує автоматичну валідацію синтаксису схеми Protobuf через `protoc`.
    * Здійснює компіляційний аудит вихідних Python-модулів платформи.
    * Запускає HIL-тест на headless-віртуальних машинах GitHub Actions.
@@ -191,7 +191,7 @@
 | :--- | :---: | :--- | :--- |
 | **`proto/telemetry_bus.proto`** | `v1.0` | Формальний контракт 1-мс телеметричного кадру шини. | **Готово:** Повна валідація синтаксису, інтегровано в CI. |
 | **`tests/mock_hardware_feeder.py`** | `v1.0` | HIL емуляційний тест та бенчмарк джиттера без заліза. | **Готово:** Проходить тестування із затримкою $<20$ мкс. |
-| **`ci/ci.yml`** | `v1.0` | Автоматизований CI/CD конвеєр перевірки коду та ICD. | **Готово:** Налаштовано автоматичний запуск на GitHub. |
+| **`.github/workflows/ci.yml`** | `v1.0` | Автоматизований CI/CD конвеєр перевірки коду та ICD. | **Готово:** Налаштовано автоматичний запуск на GitHub. |
 | **`RexfordRomance`** | `v0.2` | Розширена сюжетна та романтична лінія (Hotel Rexford). | **Готово:** Усунуто збій зв'язування сцени `MagnoliaMorningTopic`. |
 | **`EllieRomance`** | `v0.2` | Сюжетна та романтична лінія Еллі Перкінс. | **Готово:** Ліквідовано зависання консольної ін'єкції у детективному агентстві. |
 | **`MercyRecruitment`** | `v0.1` | Система вербування лідерів Стрільців (Шеллі Тіллер). | **Готово:** Базовий білд плагіна та скрипти Papyrus (`.pex`). |
@@ -266,7 +266,7 @@ To guarantee mission-critical reliability, sub-millisecond response times, and c
      ```bash
      python3 tests/mock_hardware_feeder.py --frames 1000 --rate-hz 250
      ```
-3. **Automated CI/CD Workflow:** [`ci/ci.yml`](ci/ci.yml)
+3. **Automated CI/CD Workflow:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
    * Verifies Protobuf schema compilation using `protoc`.
    * Performs compilation syntax audits on all Python platform services.
    * Executes headless HIL benchmark runs on GitHub Actions runners.
@@ -364,7 +364,7 @@ Overcoming the artificial faction mutual-destruction constraints of *Fallout 4*,
 | :--- | :---: | :--- | :--- |
 | **`proto/telemetry_bus.proto`** | `v1.0` | Formal 1-ms deterministic telemetry frame ICD. | **Complete:** Fully validated schema, integrated in CI. |
 | **`tests/mock_hardware_feeder.py`** | `v1.0` | Headless HIL emulation harness & jitter benchmark. | **Complete:** Fully passing, $<20$ µs mean latency. |
-| **`ci/ci.yml`** | `v1.0` | GitHub Actions CI workflow for ICD & HIL verification. | **Complete:** Configured for automated push/PR runs. |
+| **`.github/workflows/ci.yml`** | `v1.0` | GitHub Actions CI workflow for ICD & HIL verification. | **Complete:** Configured for automated push/PR runs. |
 | **`RexfordRomance`** | `v0.2` | Extended narrative arc for Hotel Rexford. | **Complete:** Resolved SCEN subtype binding fault. |
 | **`EllieRomance`** | `v0.2` | Ellie Perkins romance and companion arc. | **Complete:** Fixed interior cell console stall in detective agency. |
 | **`MercyRecruitment`** | `v0.1` | Gunner recruitment system and unique perks. | **Complete:** Compiled Papyrus scripts (`.pex`) and `.esp` baseline. |
