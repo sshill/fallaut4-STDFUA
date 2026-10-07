@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "segment_id": "53117281-e470-412a-af9f-0d8c0b735a83",
+  "module_name": "EllieRomance.esp",
+  "generated_by": "qwen2.5-coder:1.5b & Antigravity Deterministic Extractor",
+  "verified_by": "antigravity",
+  "indexed_at": "2026-10-07T23:03:00+03:00",
+  "plugin_metadata": {
+    "name": "EllieRomance.esp",
+    "version": "1.10.163.0",
+    "author": "Antigravity Stand",
+    "description": "Ellie Perkins Romance Overhaul - «Мінітмен та джентльмен»",
+    "masters": [
+      "Fallout4.esm"
+    ],
+    "record_count": 13,
+    "file_size_bytes": 10426
+  },
+  "formid_catalog": [
+    {
+      "formid": "0x01000810",
+      "sig": "QUST",
+      "edid": "EllieRomanceQuest",
+      "role": "Master Quest Controller & Stage Sequencer"
+    },
+    {
+      "formid": "0x01000820",
+      "sig": "CONT",
+      "edid": "EllieWardrobeChest",
+      "role": "Dress Donation & Transfer Container"
+    },
+    {
+      "formid": "0x01000830",
+      "sig": "MESG",
+      "edid": "EllieDialogueMessage",
+      "role": "Root Romance Dialogue Menu"
+    },
+    {
+      "formid": "0x01000831",
+      "sig": "MESG",
+      "edid": "EllieWardrobeSelectMessage",
+      "role": "Wardrobe Selection Menu Page 1"
+    },
+    {
+      "formid": "0x01000832",
+      "sig": "MESG",
+      "edid": "EllieWardrobeSelectMessage2",
+      "role": "Wardrobe Selection Menu Page 2"
+    },
+    {
+      "formid": "0x01000833",
+      "sig": "MESG",
+      "edid": "EllieBarbershopMessage",
+      "role": "Makeover & Hairstyle Dialogue"
+    },
+    {
+      "formid": "0x01000834",
+      "sig": "MESG",
+      "edid": "EllieBarOrderMessage",
+      "role": "Vadim Wine & Bobrovka Order Menu"
+    },
+    {
+      "formid": "0x01000835",
+      "sig": "MESG",
+      "edid": "EllieWineToastMessage",
+      "role": "Romantic Cinematic Toast Menu"
+    },
+    {
+      "formid": "0x01000836",
+      "sig": "MESG",
+      "edid": "EllieDugoutInnDialogueMessage",
+      "role": "Dugout Date Compliment & Flirt Menu (+15 Affinity)"
+    },
+    {
+      "formid": "0x01000840",
+      "sig": "SNDR",
+      "edid": "EllieGratitudeSound",
+      "role": "Audio SFX on Dress Donation"
+    },
+    {
+      "formid": "0x01000841",
+      "sig": "SNDR",
+      "edid": "EllieFlirtSound",
+      "role": "Audio SFX on Romantic Dialogue"
+    },
+    {
+      "formid": "0x01000850",
+      "sig": "NPC_",
+      "edid": "ElliePerkinsStyled",
+      "role": "Custom Styled Actor Base with Overhauled FaceGen & Hair"
+    },
+    {
+      "formid": "0x01000860",
+      "sig": "ALCH",
+      "edid": "EllieRomanceCountryCrossingWine",
+      "role": "Custom Vintage Potion (Pinot Noir 2075)"
+    }
+  ],
+  "master_cross_references": [
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x00050C28",
+      "sig": "ALCH",
+      "edid": "BobrovMoonshine",
+      "validation": "VERIFIED_SAFE (Master Index 0)"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x00000007",
+      "sig": "ACHR",
+      "edid": "PlayerREF",
+      "validation": "VERIFIED_SAFE"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x00002F27",
+      "sig": "ACHR",
+      "edid": "ElliePerkinsREF",
+      "validation": "VERIFIED_SAFE"
+    }
+  ],
+  "stage_30_state_machine": {
+    "scene_name": "DiamondCityDugoutInnDate",
+    "quest_stage": 30,
+    "entry_condition": "WardrobeStageCompleted == True && BarbershopStageCompleted == True",
+    "seating_primitive": "SnapIntoInteraction(DugoutTableChairMarker)",
+    "dialogue_flow": [
+      {
+        "step": 1,
+        "action": "EnsureDugoutTableSetup",
+        "props_spawned": [
+          "WildMutfruitBouquet",
+          "CleanTablecloth",
+          "WineBottles"
+        ]
+      },
+      {
+        "step": 2,
+        "action": "ShowEllieDugoutInnMenu",
+        "affinity_delta": 15,
+        "sound_sfx": "0x01000841"
+      },
+      {
+        "step": 3,
+        "action": "OrderWineFromVadim",
+        "actor_target": "VadimBobrov"
+      },
+      {
+        "step": 4,
+        "action": "PerformWineToastCinematic",
+        "camera_zoom": true
+      },
+      {
+        "step": 5,
+        "action": "TransitionToDugoutBedroom",
+        "next_stage": 40
+      }
+    ],
+    "safety_guards": {
+      "nullptr_checks": [
+        "ScarlettActorRef != None prior to bouquet admiration check",
+        "EllieREF.Is3DLoaded() prior to snap animation",
+        "DugoutTableMarker != None prior to prop attachment"
+      ],
+      "cleanup_hooks": [
+        "CleanUpScarlett()",
+        "CleanUpBobrovkaProps()",
+        "CleanUpWineProps()",
+        "RestoreDugoutInnBar()"
+      ]
+    }
+  },
+  "decompiled_scripts_manifest": [
+    {
+      "script_name": "EllieRomanceEncounterScript",
+      "decompiled_path": "F4 modding/staging_ellie_romance/decompiled/EllieRomanceEncounterScript.psc",
+      "source_path": "F4 modding/staging_ellie_romance/Source/EllieRomanceEncounterScript.psc",
+      "binary_path": "F4 modding/staging_ellie_romance/Scripts/EllieRomanceEncounterScript.pex",
+      "symbols_count": 42
+    },
+    {
+      "script_name": "EllieWardrobeChestScript",
+      "decompiled_path": "F4 modding/staging_ellie_romance/decompiled/EllieWardrobeChestScript.psc",
+      "source_path": "F4 modding/staging_ellie_romance/Source/EllieWardrobeChestScript.psc",
+      "binary_path": "F4 modding/staging_ellie_romance/Scripts/EllieWardrobeChestScript.pex",
+      "symbols_count": 2
+    },
+    {
+      "script_name": "TestQuick",
+      "decompiled_path": "F4 modding/staging_ellie_romance/decompiled/TestQuick.psc",
+      "source_path": "F4 modding/staging_ellie_romance/Source/TestQuick.psc",
+      "binary_path": "F4 modding/staging_ellie_romance/Scripts/TestQuick.pex",
+      "symbols_count": 18
+    },
+    {
+      "script_name": "TestSimple",
+      "decompiled_path": "F4 modding/staging_ellie_romance/decompiled/TestSimple.psc",
+      "source_path": "F4 modding/staging_ellie_romance/Source/TestSimple.psc",
+      "binary_path": "F4 modding/staging_ellie_romance/Scripts/TestSimple.pex",
+      "symbols_count": 1
+    }
+  ]
+}
