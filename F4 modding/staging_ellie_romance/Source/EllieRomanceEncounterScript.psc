@@ -179,7 +179,7 @@ EndFunction
 
 Potion Function GetBobrovMoonshine()
     If BobrovMoonshine == None
-        BobrovMoonshine = Game.GetForm(0x000366BF) as Potion
+        BobrovMoonshine = Game.GetForm(0x00050C28) as Potion
     EndIf
     Return BobrovMoonshine
 EndFunction
@@ -893,12 +893,13 @@ Function EnsureDugoutTableSetup(Bool abForce = False)
         
         If chairWest != None
             ellie.MoveTo(chairWest, 0.0, 0.0, 0.0, True)
-            chairWest.Activate(ellie as ObjectReference, True)
+            ellie.SnapIntoInteraction(chairWest)
+            ellie.SetRestrained(True)
         ElseIf tableMarker != None
             ellie.MoveTo(tableMarker, 0.0, 0.0, 0.0, True)
+            ellie.SetRestrained(True)
         EndIf
         ellie.EvaluatePackage(False)
-        ellie.SetRestrained(True)
         ellie.BlockActivation(True, False)
         RegisterForRemoteEvent(ellie as ScriptObject, "OnActivate")
         If EllieStyledREF != None
@@ -917,6 +918,7 @@ Function EnsureDugoutTableSetup(Bool abForce = False)
                 PlacedMoonshineRef = table.PlaceAtMe(moonshine as Form, 1, False, False, False)
                 If PlacedMoonshineRef != None
                     PlacedMoonshineRef.SetPosition(-128.0, -3090.8, 55.0)
+                    PlacedMoonshineRef.BlockActivation(True, False)
                     RegisterForRemoteEvent(PlacedMoonshineRef as ScriptObject, "OnActivate")
                 EndIf
             EndIf
@@ -937,10 +939,12 @@ Function EnsureDugoutTableSetup(Bool abForce = False)
                 EndIf
             EndIf
         ElseIf PlacedMoonshineRef != None
+            PlacedMoonshineRef.BlockActivation(True, False)
             RegisterForRemoteEvent(PlacedMoonshineRef as ScriptObject, "OnActivate")
         EndIf
     Else
         If PlacedWineRef != None
+            PlacedWineRef.BlockActivation(True, False)
             RegisterForRemoteEvent(PlacedWineRef as ScriptObject, "OnActivate")
         EndIf
     EndIf
@@ -1029,13 +1033,13 @@ Function ShowEllieDugoutInnMenu()
             Debug.Notification("Погляньте на пляшку вина на столику [E].")
         EndIf
     ElseIf choice == 3
-        ; 3: «Як тобі напій на столі?»
+        ; 3: «Замовити вишукане вино / Підняти келих тосту»
         If !HasOrderedWine
             PlayEllieDisgustReaction()
-            Debug.Notification("Підійдіть до столика та натисніть [E] на пляшку Бобровки, щоб замовити вишукане вино.")
+            OrderWineFromVadim()
         Else
             PlayEllieSmile()
-            Debug.Notification("Еллі: «Це чудове вино, любий! Піднімемо келихи за нас?» (Натисніть [E] на пляшку вина на столику)")
+            PerformWineToastCinematic()
         EndIf
     ElseIf choice == 4
         ; 4: «Зачекай хвилинку (Бувай)»
@@ -1109,6 +1113,7 @@ Function ExecuteWineArrival()
         PlacedWineRef = table.PlaceAtMe(wine as Form, 1, False, False, False)
         If PlacedWineRef != None
             PlacedWineRef.SetPosition(-128.0, -3080.0, 56.0)
+            PlacedWineRef.BlockActivation(True, False)
             RegisterForRemoteEvent(PlacedWineRef as ScriptObject, "OnActivate")
         EndIf
     EndIf

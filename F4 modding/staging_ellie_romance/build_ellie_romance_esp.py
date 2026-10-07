@@ -261,7 +261,7 @@ def main():
     mesg7_sub += make_subrecord("ITXT", "Ти виглядаєш просто приголомшливо у цій вечірній сукні!\x00")
     mesg7_sub += make_subrecord("ITXT", "Ця нова зачіска та макіяж підкреслюють твої прекрасні очі...\x00")
     mesg7_sub += make_subrecord("ITXT", "Поруч з тобою цей бар здається найзатишнішим місцем у Співдружності.\x00")
-    mesg7_sub += make_subrecord("ITXT", "Як тобі напій на столі?\x00")
+    mesg7_sub += make_subrecord("ITXT", "Замовити вишукане вино / Підняти келих тосту\x00")
     mesg7_sub += make_subrecord("ITXT", "Зачекай хвилинку (Бувай)\x00")
     mesg7_rec = make_record("MESG", 0x01000836, 0, mesg7_sub)
 
@@ -365,7 +365,7 @@ def main():
 
         # Dugout Inn & Romance Finale Properties
         ("DugoutTableMarker",        1, 0x001C7F1A), # DmndDugoutTableMarker01
-        ("BobrovMoonshine",          1, 0x000366BF), # BobrovsBestMoonshine
+        ("BobrovMoonshine",          1, 0x00050C28), # MoonshineBobrov (0x00050C28)
         ("WineBottleForm",           1, 0x000366C2), # Wine
         ("CountryCrossingWineForm",  1, 0x01000860), # ALCH Кантрі Кроссінг Піно-Нуар (урожай 2075 року)
         ("FlowerVaseForm",           1, 0x000AC8E6), # VaseVintageCleanFlowers01a
