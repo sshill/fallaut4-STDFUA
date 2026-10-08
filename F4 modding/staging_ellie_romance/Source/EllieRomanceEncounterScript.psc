@@ -349,6 +349,7 @@ EndFunction
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
     If akSender == Game.GetPlayer()
+        Utility.Wait(0.5)
         InitializeMod()
         ReapplyCurrentDress()
         If RomanceStage == 30
@@ -366,7 +367,9 @@ EndEvent
 
 Function CompleteRomanceAndReturnToAgency()
     RomanceStage = 100
-    SetStage(100)
+    If GetStage() != 100
+        SetStage(100)
+    EndIf
     SetObjectiveCompleted(10, True)
     SetObjectiveCompleted(20, True)
     SetObjectiveCompleted(30, True)
@@ -955,7 +958,16 @@ Function EnsureDugoutTableSetup(Bool abForce = False)
         
         If chairWest != None
             ellie.MoveTo(chairWest, 0.0, 0.0, 0.0, True)
-            ellie.SnapIntoInteraction(chairWest)
+            Int wait3D = 0
+            While (!ellie.Is3DLoaded() || !chairWest.Is3DLoaded()) && wait3D < 15
+                Utility.Wait(0.1)
+                wait3D += 1
+            EndWhile
+            If ellie.Is3DLoaded() && chairWest.Is3DLoaded()
+                ellie.SnapIntoInteraction(chairWest)
+            Else
+                chairWest.Activate(ellie as ObjectReference, True)
+            EndIf
             ellie.SetRestrained(True)
         ElseIf tableMarker != None
             ellie.MoveTo(tableMarker, 0.0, 0.0, 0.0, True)
@@ -1383,6 +1395,7 @@ Function CleanUpScarlett()
         scarlett.SetRestrained(False)
         scarlett.BlockActivation(False, False)
         UnregisterForRemoteEvent(scarlett as ScriptObject, "OnActivate")
+        scarlett.EvaluatePackage(False)
     EndIf
     IsScarlettAdmiring = False
 EndFunction

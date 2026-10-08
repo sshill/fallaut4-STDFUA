@@ -85,7 +85,16 @@ for script_name in scripts:
             print(combined)
             sys.exit(1)
             
-        for missing_type in missing:
-            decompile_type(missing_type)
+import shutil
 
-print("\nAll Ellie scripts compiled successfully.")
+GAME_SCRIPTS_DIR = os.path.join(BASE_DIR, "game", "Data", "Scripts")
+if os.path.exists(GAME_SCRIPTS_DIR):
+    for script_name in scripts:
+        pex_name = script_name[:-4] + ".pex"
+        src_pex = os.path.join(OUT_DIR, pex_name)
+        dst_pex = os.path.join(GAME_SCRIPTS_DIR, pex_name)
+        if os.path.exists(src_pex):
+            shutil.copy2(src_pex, dst_pex)
+            print(f"[DEPLOY] Copied {pex_name} -> {dst_pex}")
+
+print("\nAll Ellie scripts compiled and deployed successfully.")
