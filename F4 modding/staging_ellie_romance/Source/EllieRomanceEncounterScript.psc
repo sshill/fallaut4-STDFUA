@@ -357,6 +357,68 @@ Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLo
     EndIf
 EndEvent
 
+Event OnStageSet(Int auiStageID, Int auiItemID)
+    Debug.Trace("[EllieRomance] OnStageSet triggered: auiStageID=" + auiStageID + ", auiItemID=" + auiItemID, 0)
+    If auiStageID == 100
+        CompleteRomanceAndReturnToAgency()
+    EndIf
+EndEvent
+
+Function CompleteRomanceAndReturnToAgency()
+    RomanceStage = 100
+    SetStage(100)
+    SetObjectiveCompleted(10, True)
+    SetObjectiveCompleted(20, True)
+    SetObjectiveCompleted(30, True)
+    IsRomanced = True
+    IsWaitingAtDugoutBar = False
+    IsWaitingAtBarbershop = False
+    HasOrderedWine = False
+    IsEllieInDugoutInn = False
+
+    Actor ellie = GetEllie()
+    ObjectReference deskMarker = GetDeskMarker()
+    Actor player = Game.GetPlayer()
+
+    If ellie != None
+        ellie.SetRestrained(False)
+        ActorValue romanticAV = GetCA_IsRomantic()
+        If romanticAV != None
+            ellie.SetValue(romanticAV, 1.0)
+        EndIf
+        If deskMarker != None
+            ellie.MoveTo(deskMarker, 0.0, 0.0, 0.0, True)
+        EndIf
+        If EnableDynamicOutfits
+            EquipDayDress()
+        EndIf
+        ellie.EvaluatePackage(False)
+    EndIf
+
+    If EllieStyledREF != None && EllieStyledREF != ellie
+        EllieStyledREF.SetRestrained(False)
+        If deskMarker != None
+            EllieStyledREF.MoveTo(deskMarker, 0.0, 0.0, 0.0, True)
+        EndIf
+        EllieStyledREF.EvaluatePackage(False)
+    EndIf
+
+    If EllieREF != None && EllieREF != ellie
+        EllieREF.SetRestrained(False)
+    EndIf
+
+    CleanUpScarlett()
+    CleanUpTableProps()
+    RestoreDugoutInnBar()
+
+    If LoversEmbracePerkSpell != None && player != None
+        LoversEmbracePerkSpell.Cast(player as ObjectReference, player as ObjectReference)
+    EndIf
+
+    Debug.Notification("Еллі: «Рада бачити тебе в агентстві, любий!» (Романтичні стосунки активні).")
+    Debug.Trace("[EllieRomance] Romance completed. Ellie restored to Valentine Detective Agency.", 0)
+EndFunction
+
 ;-- Interaction & Dialogue Menu ----------------------------
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
     Actor ellie = GetEllie()
