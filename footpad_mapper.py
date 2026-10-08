@@ -245,6 +245,7 @@ class UnifiedFootpadMapper:
         self.telemetry_fp = None
         self.recording_start_time = 0.0
         self.recording_file_path = ""
+        self.share_pressed = False
 
         os.makedirs(os.path.dirname(LIVE_STATE_FILE), exist_ok=True)
         self.write_live_state("Ініціалізація")
@@ -253,6 +254,7 @@ class UnifiedFootpadMapper:
         try:
             st = {
                 "states": self.pedal_states,
+                "share_pressed": getattr(self, "share_pressed", False),
                 "last_action": last_action,
                 "has_ds4": self.fd_ds4 is not None,
                 "has_touchpad": self.fd_touchpad is not None,
@@ -507,13 +509,19 @@ class UnifiedFootpadMapper:
                     event_desc = f"BTN_{'DOWN' if val == 1 else 'UP'}_Start"
                     print(f"[{time.strftime('%H:%M:%S')}] DS4 Options [Start]: {state_str}")
 
-            # 8. Share (314) -> Xbox Back (314) [Toggle POV]
+            # 8. Share (314) -> Xbox Back (314) [Toggle POV & Note Hold]
             elif code == 314:
                 self.emit_event(self.fd_uinput_gamepad, EV_KEY, 314, val)
                 if val in (0, 1):
+                    self.share_pressed = (val == 1)
                     state_str = "НАТИСНУТО" if val == 1 else "ВІДПУЩЕНО"
                     event_desc = f"BTN_{'DOWN' if val == 1 else 'UP'}_Share"
                     print(f"[{time.strftime('%H:%M:%S')}] DS4 Share [Back]: {state_str}")
+                    try:
+                        with open("/tmp/ds4_share_btn.tmp", "w") as sf: sf.write("1" if val == 1 else "0")
+                        os.replace("/tmp/ds4_share_btn.tmp", "/tmp/ds4_share_btn")
+                    except Exception: pass
+                    self.write_live_state(event_desc)
 
             # 9. PS Button (316) -> Xbox Guide (316)
             elif code == 316:

@@ -37,16 +37,28 @@ def configure_display():
         except Exception:
             pass
 
-        # Borderless windowed fullscreen covering the external monitor at its exact coordinates
-        display_settings = {
-            "bFull Screen": "0",
-            "bBorderless": "1",
-            "iSize W": str(w),
-            "iSize H": str(h),
-            "iLocation X": str(x),
-            "iLocation Y": str(y),
-        }
-        print(f"[Display Config] Mode: Borderless Fullscreen on {port} ({w}x{h} at +{x}+{y}), Panels on Laptop eDP-1")
+        # Check if Gamescope FSR upscaling is requested
+        use_gamescope = os.environ.get("USE_GAMESCOPE", "1") == "1"
+        if use_gamescope:
+            display_settings = {
+                "bFull Screen": "1",
+                "bBorderless": "0",
+                "iSize W": "1280",
+                "iSize H": "720",
+                "iLocation X": "0",
+                "iLocation Y": "0",
+            }
+            print(f"[Display Config] Mode: Gamescope FSR target (1280x720 internal render -> {w}x{h} upscale)")
+        else:
+            display_settings = {
+                "bFull Screen": "0",
+                "bBorderless": "1",
+                "iSize W": str(w),
+                "iSize H": str(h),
+                "iLocation X": str(x),
+                "iLocation Y": str(y),
+            }
+            print(f"[Display Config] Mode: Borderless Fullscreen on {port} ({w}x{h} at +{x}+{y}), Panels on Laptop eDP-1")
     else:
         print("[Display Config] External monitor not detected. Laptop display only.")
         

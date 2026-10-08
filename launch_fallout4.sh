@@ -72,7 +72,10 @@ fi
 
 # Disable XFCE window compositing during gameplay to eliminate stuttering & latency
 xfconf-query -c xfwm4 -p /general/use_compositing -s false 2>/dev/null || true
-trap 'xfconf-query -c xfwm4 -p /general/use_compositing -s true 2>/dev/null || true' EXIT
+
+# Inhibit X11 screensaver, DPMS and activate XFCE presentation mode during gameplay
+xset s off -dpms 2>/dev/null || true
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s true --create -t bool 2>/dev/null || true
 
 # Ensure Papyrus log directory exists for Antigravity live telemetry monitoring
 export PAPYRUS_LOG_DIR="${WINEPREFIX}/drive_c/users/hills/Documents/My Games/Fallout4/Logs/Script"
@@ -93,12 +96,7 @@ if [ -n "${DS4_SINK}" ]; then
     pactl set-default-sink "${DS4_SINK}" 2>/dev/null || true
     echo " Audio Output: DualShock 4 3.5mm Headset Jack (${DS4_SINK})"
 else
-    # Fallback to Bluetooth Zone Vibe if DualShock audio is absent
-    ZONE_VIBE_SINK=$(pactl list sinks short 2>/dev/null | grep -E "bluez_sink.*(94_02_30|Zone)" | awk '{print $2}' | head -n 1)
-    if [ -n "${ZONE_VIBE_SINK}" ]; then
-        pactl set-default-sink "${ZONE_VIBE_SINK}" 2>/dev/null || true
-        echo " Audio Output: Zone Vibe 100 (${ZONE_VIBE_SINK})"
-    fi
+    echo " [УВАГА] DualShock 4 аудіокартку не виявлено. Перевірте підключення геймпада через USB!"
 fi
 
 if [ -n "${DS4_SOURCE}" ]; then
@@ -112,10 +110,20 @@ echo " Display: ${DISPLAY}"
 echo " Wine: $(wine --version)"
 echo " WINEPREFIX: ${WINEPREFIX}"
 echo " GPU Target: Intel Raptor Lake-U (ANV Vulkan 1.4 + DXVK 2.6)"
-echo " Audio Output: ${ZONE_VIBE_SINK:-Default PulseAudio Sink}"
+echo " Audio Output: ${DS4_SINK:-DualShock 4 3.5mm Jack (Очікується підключення)}"
 echo " Papyrus Log: ${PAPYRUS_LOG_DIR}/Papyrus.0.log"
 echo " Crash & Engine Log: ${GAME_LOG}"
-# Automatically configure display: Fullscreen on external monitor if connected, or framed window if not
+
+# Check Gamescope availability for FSR 720p->1080p upscaling
+if command -v gamescope >/dev/null 2>&1; then
+    export USE_GAMESCOPE=1
+    echo " Gamescope FSR: Увімкнено (1280x720 рендер -> 1920x1080 FSR)"
+else
+    export USE_GAMESCOPE=0
+    echo " Gamescope FSR: Вимкнено (gamescope не знайдено в PATH)"
+fi
+
+# Automatically configure display: 720p FSR target or borderless external
 python3 "${STAND_DIR}/configure_display.py"
 
 # Clean up any lingering background daemons from previous sessions
@@ -162,6 +170,7 @@ cleanup() {
     pkill -f footpad_mapper.py 2>/dev/null || true
     xinput enable "Sony Interactive Entertainment Wireless Controller Touchpad" 2>/dev/null || true
     xfconf-query -c xfwm4 -p /general/use_compositing -s true 2>/dev/null || true
+    xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -173,7 +182,13 @@ sync
 echo 3 | sudo -n tee /proc/sys/vm/drop_caches >/dev/null 2>&1 || true
 
 cd "${STAND_DIR}/game"
-wine ./Fallout4.exe "$@" 200>&- >> "${GAME_LOG}" 2>&1 &
+if [ "${USE_GAMESCOPE}" = "1" ]; then
+    echo " [Engine] Запуск Fallout 4 через Gamescope FSR (720p->1080p) на P-ядрах 0,1..."
+    gamescope -w 1280 -h 720 -W 1920 -H 1080 -F fsr -f -- taskset -c 0,1 wine ./Fallout4.exe "$@" 200>&- >> "${GAME_LOG}" 2>&1 &
+else
+    echo " [Engine] Запуск Fallout 4 нативно на P-ядрах 0,1 (taskset -c 0,1)..."
+    taskset -c 0,1 wine ./Fallout4.exe "$@" 200>&- >> "${GAME_LOG}" 2>&1 &
+fi
 
 # Robust synchronization: wait up to 30s for Fallout4 or wineserver to appear
 echo " Очікую завантаження рушія Fallout 4..."
