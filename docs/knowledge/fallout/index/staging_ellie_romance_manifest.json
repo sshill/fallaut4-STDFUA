@@ -170,6 +170,22 @@
       ]
     }
   },
+  "stage_100_state_machine": {
+    "scene_name": "RomanceCompletionValentineAgency",
+    "quest_stage": 100,
+    "entry_condition": "auiStageID == 100 (OnStageSet)",
+    "handler": "CompleteRomanceAndReturnToAgency()",
+    "actions": [
+      "ellie.SetRestrained(False)",
+      "ellie.SetValue(CA_IsRomantic, 1.0)",
+      "ellie.MoveTo(deskMarker)",
+      "EquipDayDress()",
+      "CleanUpScarlett()",
+      "CleanUpTableProps()",
+      "RestoreDugoutInnBar()",
+      "LoversEmbracePerkSpell.Cast(player)"
+    ]
+  },
   "decompiled_scripts_manifest": [
     {
       "script_name": "EllieRomanceEncounterScript",
