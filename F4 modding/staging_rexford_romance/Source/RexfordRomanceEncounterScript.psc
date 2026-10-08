@@ -10,6 +10,7 @@ Cell Property GoodneighborTheThirdRail Auto Const
 ObjectReference Property GoodneighborMagnoliaSingMarker Auto Const
 Spell Property LoversEmbracePerkSpell Auto Const
 Scene Property MagnoliaGreetScene03 Auto Const
+Armor Property ClothesMagnoliaDress Auto Const
 
 ;-- Configuration & Toggles -----------------------------
 Bool Property EnableMagnolia = True Auto
@@ -89,14 +90,37 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
                 EndIf
 
                 If chosenPartner != None
-                    ; 5. Spawn/Move Partner to Hotel Rexford marker beside player bed
-                    chosenPartner.MoveTo(HotelMagnoliaMarkerREF, 0.0, 0.0, 0.0, True)
-                    chosenPartner.EvaluatePackage(False)
+                    ; 5. Seamless Transition & Dynamic Bed Scene
+                    ; Fade out screen momentarily while arranging partner in bed
+                    Game.FadeOutGame(True, True, 0.1, 2.0, True)
+                    Utility.Wait(1.5)
+
+                    ; Position partner on bed & wait for 3D load before snap
+                    If HotelRexfordPlayerBed != None
+                        chosenPartner.MoveTo(HotelRexfordPlayerBed, 20.0, 20.0, 0.0, True)
+                        Int wait3D = 0
+                        While !chosenPartner.Is3DLoaded() && wait3D < 15
+                            Utility.Wait(0.1)
+                            wait3D += 1
+                        EndWhile
+                        chosenPartner.SetRestrained(True)
+                        chosenPartner.SnapIntoInteraction(HotelRexfordPlayerBed)
+                    Else
+                        chosenPartner.MoveTo(HotelMagnoliaMarkerREF, 0.0, 0.0, 0.0, True)
+                        chosenPartner.SetRestrained(True)
+                    EndIf
+
+                    If ClothesMagnoliaDress != None
+                        If chosenPartner.GetItemCount(ClothesMagnoliaDress) == 0
+                            chosenPartner.AddItem(ClothesMagnoliaDress, 1, True)
+                        EndIf
+                        chosenPartner.UnequipItem(ClothesMagnoliaDress, False, True)
+                    EndIf
                     ActiveHotelPartner = chosenPartner
                     IsPartnerInHotel = True
-                    Debug.Trace("[RexfordRomance] Partner " + (chosenPartner as String) + " moved to Hotel Rexford bed marker.", 0)
+                    Debug.Trace("[RexfordRomance] Partner " + (chosenPartner as String) + " positioned in bed in sleep state.", 0)
 
-                    ; 6. Grant Lover's Embrace perk/spell
+                    ; Grant Lover's Embrace perk/spell
                     If LoversEmbracePerkSpell != None
                         LoversEmbracePerkSpell.Cast(player as ObjectReference, player as ObjectReference)
                         Debug.Trace("[RexfordRomance] Lover's Embrace perk spell cast on player.", 0)
@@ -104,10 +128,23 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
 
                     Debug.Notification("Готель «Рексфорд»: Затишна ніч разом. Отримано «Обійми коханця».")
 
-                    ; 7. Morning Lover Scene Execution
-                    ; Wait for player standing-up animation and camera fade-in to finish
-                    Utility.Wait(1.5)
+                    ; Fade back in: player and partner are in bed
+                    Game.FadeOutGame(False, True, 0.0, 1.5, False)
+
+                    ; 6. Morning Wake-Up & Dressing Phase
+                    ; Wait for player to fully finish standing-up animation (~3.5s)
+                    Utility.Wait(3.5)
+                    chosenPartner.SetRestrained(False)
+
+                    ; Magnolia stands up, dresses back into singer concert dress
+                    If ClothesMagnoliaDress != None
+                        If chosenPartner.GetItemCount(ClothesMagnoliaDress) == 0
+                            chosenPartner.AddItem(ClothesMagnoliaDress, 1, True)
+                        EndIf
+                        chosenPartner.EquipItem(ClothesMagnoliaDress, False, True)
+                    EndIf
                     chosenPartner.SetLookAt(player as ObjectReference, True)
+                    chosenPartner.EvaluatePackage(False)
 
                     If MagnoliaGreetScene03 != None
                         If MagnoliaGreetScene03.IsPlaying()
@@ -117,7 +154,7 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
                         Debug.Trace("[RexfordRomance] MagnoliaGreetScene03 ForceStart called.", 0)
                     EndIf
 
-                    ; 8. Start return timer if enabled
+                    ; 7. Start return timer if enabled
                     If AutoReturnAfterDelay && ReturnDelaySeconds > 0.0
                         StartTimer(ReturnDelaySeconds, 1001)
                         Debug.Trace("[RexfordRomance] Return timer started: " + ReturnDelaySeconds + " seconds.", 0)
@@ -142,6 +179,14 @@ Function ResetPartnerLocation()
         Actor player = Game.GetPlayer()
         If player.GetParentCell() != GoodneighborHotelRexford || player.GetDistance(ActiveHotelPartner as ObjectReference) > 1500.0
             ActiveHotelPartner.ClearLookAt()
+            ActiveHotelPartner.SetRestrained(False)
+            ; Safeguard: Ensure concert dress is restored before returning to schedule
+            If ClothesMagnoliaDress != None
+                If ActiveHotelPartner.GetItemCount(ClothesMagnoliaDress) == 0
+                    ActiveHotelPartner.AddItem(ClothesMagnoliaDress, 1, True)
+                EndIf
+                ActiveHotelPartner.EquipItem(ClothesMagnoliaDress, False, True)
+            EndIf
             If ActiveHotelPartner == MagnoliaREF && GoodneighborMagnoliaSingMarker != None
                 ActiveHotelPartner.MoveTo(GoodneighborMagnoliaSingMarker, 0.0, 0.0, 0.0, True)
                 ActiveHotelPartner.EvaluatePackage(False)

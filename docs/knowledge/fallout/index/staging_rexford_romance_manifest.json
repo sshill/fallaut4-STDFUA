@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "segment_id": "893c7a10-2f14-419b-9c5e-7a912bb649c1",
+  "module_name": "RexfordRomance.esp",
+  "generated_by": "qwen2.5-coder & Antigravity Deterministic Extractor",
+  "verified_by": "Claude Sonnet 5.5 & Caprica Compiler",
+  "indexed_at": "2026-10-08T13:58:00+03:00",
+  "plugin_metadata": {
+    "name": "RexfordRomance.esp",
+    "version": "1.10.163.1",
+    "author": "Antigravity Stand",
+    "description": "Rexford Hotel Romance & Dynamic Sleep Outfit - Постільна сцена та динамічний гардероб Магнолії",
+    "masters": [
+      "Fallout4.esm"
+    ],
+    "record_count": 2,
+    "file_size_bytes": 710
+  },
+  "formid_catalog": [
+    {
+      "formid": "0x01000800",
+      "sig": "QUST",
+      "edid": "RexfordRomanceQuest",
+      "role": "Master Encounter Controller & Bed Scene Sequencer"
+    }
+  ],
+  "master_cross_references": [
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x0002268B",
+      "sig": "ACHR",
+      "edid": "MagnoliaREF",
+      "validation": "VERIFIED_SAFE (Master Index 0)"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x0010C651",
+      "sig": "REFR",
+      "edid": "HotelRexfordPlayerBed",
+      "validation": "VERIFIED_SAFE"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x001AD903",
+      "sig": "REFR",
+      "edid": "HotelMagnoliaMarkerREF",
+      "validation": "VERIFIED_SAFE"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x000F3C1D",
+      "sig": "SPEL",
+      "edid": "LoversEmbracePerkSpell",
+      "validation": "VERIFIED_SAFE"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x001AC13B",
+      "sig": "SCEN",
+      "edid": "MagnoliaGreetScene03",
+      "validation": "VERIFIED_SAFE"
+    },
+    {
+      "source_master": "Fallout4.esm",
+      "formid": "0x0002268C",
+      "sig": "ARMO",
+      "edid": "ClothesMagnoliaDress",
+      "validation": "VERIFIED_SAFE"
+    }
+  ],
+  "bed_scene_state_machine": {
+    "scene_name": "MagnoliaHotelRexfordBedEncounter",
+    "entry_condition": "!abInterrupted && isRexfordBed && magnoliaRomanced && !hasActiveRomanticCompanion",
+    "sequence": [
+      {
+        "step": 1,
+        "action": "Game.FadeOutGame(True, True, 0.1, 2.0, True)",
+        "purpose": "Screen black out during bed placement (1.5s hold)"
+      },
+      {
+        "step": 2,
+        "action": "chosenPartner.MoveTo(HotelRexfordPlayerBed, 20.0, 20.0, 0.0, True)",
+        "sub_action": "Wait for chosenPartner.Is3DLoaded() -> SetRestrained(True) -> SnapIntoInteraction(HotelRexfordPlayerBed)"
+      },
+      {
+        "step": 3,
+        "action": "Inventory check ClothesMagnoliaDress -> chosenPartner.UnequipItem(ClothesMagnoliaDress, False, True)",
+        "purpose": "Strip concert dress into sleep underwear state"
+      },
+      {
+        "step": 4,
+        "action": "LoversEmbracePerkSpell.Cast(player, player)",
+        "notification": "Готель «Рексфорд»: Затишна ніч разом. Отримано «Обійми коханця»."
+      },
+      {
+        "step": 5,
+        "action": "Game.FadeOutGame(False, True, 0.0, 1.5, False)",
+        "purpose": "Morning light return: partners in bed together"
+      },
+      {
+        "step": 6,
+        "action": "Utility.Wait(3.5) for player stand-up -> chosenPartner.SetRestrained(False)",
+        "purpose": "Ensure player finished bed get-up animation before Magnolia rises"
+      },
+      {
+        "step": 7,
+        "action": "chosenPartner.EquipItem(ClothesMagnoliaDress, False, True) -> EvaluatePackage(False)",
+        "purpose": "Morning dressing back into singer dress upon rising"
+      },
+      {
+        "step": 8,
+        "action": "chosenPartner.SetLookAt(player, True) -> MagnoliaGreetScene03.ForceStart()",
+        "purpose": "Cinematic lover greeting dialogue"
+      }
+    ],
+    "safeguards": {
+      "3d_loading_guard": "15-frame poll While !chosenPartner.Is3DLoaded() prevents silent SnapIntoInteraction failure",
+      "ai_package_inhibition": "SetRestrained(True) inhibits singing package until morning wake-up",
+      "unclothed_prevention": "ResetPartnerLocation() and morning wake-up check item count and call EquipItem(ClothesMagnoliaDress)",
+      "nullptr_checks": "ClothesMagnoliaDress != None and HotelRexfordPlayerBed != None validated"
+    }
+  },
+  "decompiled_scripts_manifest": [
+    {
+      "script_name": "RexfordRomanceEncounterScript",
+      "source_path": "F4 modding/staging_rexford_romance/Source/RexfordRomanceEncounterScript.psc",
+      "binary_path": "F4 modding/staging_rexford_romance/Scripts/RexfordRomanceEncounterScript.pex",
+      "symbols_count": 13,
+      "status": "SYNCHRONIZED"
+    }
+  ]
+}

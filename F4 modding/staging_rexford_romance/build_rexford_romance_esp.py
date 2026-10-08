@@ -88,6 +88,7 @@ def main():
         ("GoodneighborMagnoliaSingMarker",1, 0x00075EBA), # REFR
         ("LoversEmbracePerkSpell",        1, 0x000F3C1D), # SPEL
         ("MagnoliaGreetScene03",          1, 0x001AC13B), # SCEN
+        ("ClothesMagnoliaDress",          1, 0x0002268C), # ARMO (ClothesMagnoliaDress)
         ("EnableMagnolia",                5, True),       # Bool
         ("AutoReturnAfterDelay",          5, True),       # Bool
         ("ReturnDelaySeconds",            4, 180.0)       # Float
