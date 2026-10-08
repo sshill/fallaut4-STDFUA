@@ -62,10 +62,10 @@
     },
     {
       "source_master": "Fallout4.esm",
-      "formid": "0x0002268C",
+      "formid": "0x000FD9A8",
       "sig": "ARMO",
-      "edid": "ClothesMagnoliaDress",
-      "validation": "VERIFIED_SAFE"
+      "edid": "ClothesSlinkyDress",
+      "validation": "VERIFIED_SAFE (Master Index 0)"
     }
   ],
   "bed_scene_state_machine": {
@@ -80,7 +80,7 @@
       {
         "step": 2,
         "action": "chosenPartner.MoveTo(HotelRexfordPlayerBed, 20.0, 20.0, 0.0, True)",
-        "sub_action": "Wait for chosenPartner.Is3DLoaded() -> SetRestrained(True) -> SnapIntoInteraction(HotelRexfordPlayerBed)"
+        "sub_action": "Wait for chosenPartner.Is3DLoaded() -> SnapIntoInteraction(HotelRexfordPlayerBed) -> SetRestrained(True)"
       },
       {
         "step": 3,

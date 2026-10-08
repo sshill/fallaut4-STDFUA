@@ -103,8 +103,9 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
                             Utility.Wait(0.1)
                             wait3D += 1
                         EndWhile
+                        Bool snapSuccess = chosenPartner.SnapIntoInteraction(HotelRexfordPlayerBed)
+                        Debug.Trace("[RexfordRomance] Bed snap interaction result: " + snapSuccess, 0)
                         chosenPartner.SetRestrained(True)
-                        chosenPartner.SnapIntoInteraction(HotelRexfordPlayerBed)
                     Else
                         chosenPartner.MoveTo(HotelMagnoliaMarkerREF, 0.0, 0.0, 0.0, True)
                         chosenPartner.SetRestrained(True)

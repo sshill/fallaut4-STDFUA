@@ -20,6 +20,7 @@ Records:
         * GoodneighborMagnoliaSingMarker:0x00075EBA (REFR)
         * LoversEmbracePerkSpell:        0x000F3C1D (SPEL)
         * MagnoliaGreetScene03:          0x001AC13B (SCEN)
+        * ClothesMagnoliaDress:          0x000FD9A8 (ARMO, ClothesSlinkyDress)
 """
 
 import os
@@ -88,7 +89,7 @@ def main():
         ("GoodneighborMagnoliaSingMarker",1, 0x00075EBA), # REFR
         ("LoversEmbracePerkSpell",        1, 0x000F3C1D), # SPEL
         ("MagnoliaGreetScene03",          1, 0x001AC13B), # SCEN
-        ("ClothesMagnoliaDress",          1, 0x0002268C), # ARMO (ClothesMagnoliaDress)
+        ("ClothesMagnoliaDress",          1, 0x000FD9A8), # ARMO (ClothesSlinkyDress)
         ("EnableMagnolia",                5, True),       # Bool
         ("AutoReturnAfterDelay",          5, True),       # Bool
         ("ReturnDelaySeconds",            4, 180.0)       # Float
