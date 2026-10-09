@@ -1,4 +1,4 @@
-# Fallout 4 Domain Execution Policy (Overlay on v0.8.0)
+# Fallout 4 Domain Execution Policy (Overlay on v0.8.2)
 **Доменне розширення для проєкту Fallout 4 Modding Stand**
 
 ---
@@ -6,7 +6,7 @@
 ## 1. Спадкування та субординація (Policy Inheritance)
 
 1. **Недоторканне базове ядро:**  
-   Цей проєкт строго наслідує Генеральний регламент v0.8.0 ([`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md)), включаючи принцип «Пиляти через Антігравіті зась! Тільки формування запитів та контроль», першість оркестратора, локальну Ollama як Primary Workhorse та Groq Cloud як Hardware Fallback Hub.
+   Цей проєкт строго наслідує Генеральний регламент v0.8.2 ([`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md)), включаючи принцип «Пиляти через Антігравіті зась! Тільки формування запитів та контроль», хаб `Antigravity_Mgr` (доступний через прямий симлінк `fallaut/Antigravity_Mgr`), першість оркестратора, локальну Ollama як Primary Workhorse та Groq Cloud як Hardware Fallback Hub.
 2. **Незмінність 5 фаз:**  
    Діагностика (Status Banner + Git & Index First) $\rightarrow$ План (`implementation_plan.md`) $\rightarrow$ Підтвердження (Approval Gate) $\rightarrow$ Застосування (Step Budget $\le 20$) $\rightarrow$ Верифікація (`walkthrough.md`).
 3. **Дія системних залізних бар'єрів:**  
