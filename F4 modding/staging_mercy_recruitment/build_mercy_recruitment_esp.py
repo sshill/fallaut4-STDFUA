@@ -128,6 +128,8 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
     return make_record("NPC_", form_id, 0, new_data)
 
 NPC_OVERRIDES = [
+    (0x00023346, 20641294, False, True, "GoodneighborDrifterF01"),
+    (0x00023347, 20640853, False, True, "GoodneighborDrifterF02Ghoul"),
     (0x000BBF84, 19245698, False, True, "LvlPrewarCultist"),
     (0x000BBF86, 19244318, False, True, "EncPrewarCultist01"),
     (0x000BEBA2, 19231829, False, True, "LvlPrewarCultistGuard"),

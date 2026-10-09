@@ -1,0 +1,48 @@
+@startuml
+skinparam backgroundColor #FDFDFD
+skinparam roundCorner 8
+skinparam shadowing false
+skinparam defaultFontName sans-serif
+
+package "Linux OS та Файлова система" {
+    rectangle "ext4 Файлова система\n(Регістрозалежність, чутливість до .nif/.pex)" as L1_FS #98FB98
+    rectangle "Дескриптори та блокування\n(Залишковий flock на FD 200 -> 200>&-)" as L1_Locks #FFB347
+    rectangle "Атрибути plugins.txt\n(Права chmod 444 Read-Only від лаунчера)" as L1_Attrib #98FB98
+}
+
+package "Wine Translation Layer та Префікс" {
+    rectangle "Реєстр Wine (user.reg)\n(CSIDL_LOCAL_APPDATA -> AppData/Local)" as L2_Reg #98FB98
+    rectangle "Wine DosPath Case Resolver\n(Сканування файлів на ext4)" as L2_Case #FFB347
+    rectangle "Віконний режим bBorderless\n(bBorderless=1, утримання фокусу X11)" as L2_Win #98FB98
+}
+
+package "Fallout 4 Creation Engine" {
+    rectangle "Завантажувач плагінів\n(Обов'язковий префікс *VintageMannequins.esp)" as L3_Loader #98FB98
+    rectangle "INI Конфігурація\n(bEnableFileSelection=1, bInvalidateOlderFiles=1)" as L3_INI #98FB98
+    rectangle "Залежності майстрів MAST\n(Fallout4.esm -> DLCworkshop02.esm)" as L3_MAST #FFB347
+}
+
+package "Структура VintageMannequins.esp" {
+    rectangle "Заголовок плагіна TES4\n(Підключено 2 майстри, слот плагіна 02)" as L4_TES4 #98FB98
+    rectangle "КРИТИЧНА КОЛІЗІЯ FORMID\n(FormID 0x00000800..0805 замість 0x02000800!\nКолізія з GMST записами Fallout4.esm)" as L4_MISC #FF6B6B
+    rectangle "Overrides рухомих статиків MSTT\n(MannequinFemale/MaleBurnt, VMAD-адаптер)" as L4_MSTT #98FB98
+    rectangle "Відсутність рецептів COBJ\n(Немає записів для крафту у верстаті)" as L4_COBJ #FFB347
+}
+
+package "Papyrus Script VM" {
+    rectangle "Скрипт MannequinHarvestScript.pex\n(OnActivate, OnHit, 6x MiscObject)" as L5_Script #98FB98
+    rectangle "Збій зв'язування властивостей\n(error: nullptr form 07000800 is not right type\nВластивості = None -> Логіка вимкнена)" as L5_Binder #FF6B6B
+}
+
+L1_Locks ..> L3_Loader : Блокував старт
+L1_Attrib --> L3_Loader : Фіксує стан
+L2_Reg --> L3_Loader : Шлях до AppData
+L3_INI --> L5_Script : Дозволяє loose PEX
+L3_MAST --> L4_TES4 : Залежність від DLC05
+L3_Loader --> L4_TES4 : Завантажує ESP
+
+L4_MSTT --> L5_Script : Приєднує скрипт
+L4_MISC ..> L5_Binder : Колізія FormID 0x00000800 (GMST)
+L5_Binder --> L5_Script : nullptr form
+
+@enduml
