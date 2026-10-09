@@ -1,4 +1,4 @@
-# Fallout 4 Domain Execution Policy (Overlay on v0.8.2)
+# Fallout 4 Domain Execution Policy (Overlay on v0.8.3)
 **Доменне розширення для проєкту Fallout 4 Modding Stand**
 
 ---
@@ -6,7 +6,7 @@
 ## 1. Спадкування та субординація (Policy Inheritance)
 
 1. **Недоторканне базове ядро:**  
-   Цей проєкт строго наслідує Генеральний регламент v0.8.2 ([`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md)), включаючи принцип «Пиляти через Антігравіті зась! Тільки формування запитів та контроль», хаб `Antigravity_Mgr` (доступний через прямий симлінк `fallaut/Antigravity_Mgr`), першість оркестратора, локальну Ollama як Primary Workhorse та Groq Cloud як Hardware Fallback Hub.
+   Цей проєкт строго наслідує Генеральний регламент v0.8.3 ([`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md)), включаючи принцип «Пиляти через Антігравіті зась! Тільки формування запитів та контроль», хаб `Antigravity_Mgr` (доступний через прямий симлінк `fallaut/Antigravity_Mgr`), першість оркестратора, локальну Ollama як Primary Workhorse та Groq Cloud як Hardware Fallback Hub.
 2. **Незмінність 5 фаз:**  
    Діагностика (Status Banner + Git & Index First) $\rightarrow$ План (`implementation_plan.md`) $\rightarrow$ Підтвердження (Approval Gate) $\rightarrow$ Застосування (Step Budget $\le 20$) $\rightarrow$ Верифікація (`walkthrough.md`).
 3. **Дія системних залізних бар'єрів:**  
@@ -51,7 +51,7 @@
 ---
 
 ## 4. Протокол інспекції екрана гри через Git (Screen Inspection via Git Protocol)
-
+ 
 1. **Заборона прямого виклику скріншотера з пісочниці:**  
    Стандартна пісочниця блокує сокети X11. Агентам суворо заборонено запускати `xfce4-screenshooter` чи `import` безпосередньо.
 2. **Протокол аналізу кадру:**  
@@ -65,3 +65,19 @@
 ## 5. Єдиний пакетний дозвіл для виконання (Batch Execution Protocol)
 - Усі дії під час Фази 4 виконуються пакетно.
 - Якщо потрібен запуск ігрових скриптів чи Wine — агент запитує єдиний пакетний дозвіл у Фазі 3, усуваючи повторні спливаючі запити.
+
+---
+
+## 6. Протокол прямого виконання на хості (Host-First Execution Protocol v0.8.3)
+
+1. **Скасування правила «Try sandboxed first» для підсистем домену:**  
+   Оскільки компілятор Caprica вимагає Wine 10 та запуск Windows-бінарників, локальна Ollama слухає `127.0.0.1:11434` (блокується пісочницею), а локальні коміти Git вимагають права запису у `.git`, намагатися запускати ці процеси в пісочниці категорично заборонено.
+2. **Обов'язковий режим `BypassSandbox: true`:**  
+   Для виконання таких команд агент зобов'язаний одразу і першим вибором використовувати `BypassSandbox: true`:
+   - Компіляція Papyrus та збірка плагінів: `python3 /home/hills/Documents/fallaut/F4 modding/...`
+   - Раннер гібридного пайплайну: `python3 "F4 modding/f4_pipeline_router.py" ...`
+   - Операції локального Git: `git add`, `git commit`, `git status` у репозиторії `fallaut`
+   - Системні аудіо-сповіщення: `aplay /home/hills/Documents/fallaut/scratch/chime_*.wav`
+3. **Автосхвалення через білий список `pre_tool_hook.py`:**  
+   Усі вказані команди входять до довіреного префіксного білого списку `pre_tool_hook.py` і санкціонуються автоматично (`decision: allow`) без модальних вікон блокування.
+
