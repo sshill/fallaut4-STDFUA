@@ -5,7 +5,7 @@ MercyRecruitmentQuestScript Property MercyQuest Auto Const
 
 Event OnActivate(ObjectReference akActionRef)
     If akActionRef == Game.GetPlayer()
-        If MercyQuest != None
+        If MercyQuest != None && !MercyQuest.IsShellyRecruited && !MercyQuest.IsShellySpared
             MercyQuest.ShowShellyDialogue()
         EndIf
     EndIf

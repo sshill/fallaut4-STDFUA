@@ -13,12 +13,14 @@ Features:
 """
 
 import os
+import shutil
 import struct
 import zlib
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FALLOUT4_ESM = "/home/hills/Documents/fallaut/game/Data/Fallout4.esm"
 TARGET_ESP = os.path.join(SCRIPT_DIR, "MercyRecruitment.esp")
+GAME_DATA_ESP = "/home/hills/Documents/fallaut/game/Data/MercyRecruitment.esp"
 
 def make_subrecord(sig, data):
     assert len(sig) == 4
@@ -92,12 +94,14 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
             
     vmad_props = [
         ("bAllowCaravan", 5, True),
-        ("WorkshopParent", 1, 0x0002058E),
         ("bAllowMove", 5, True),
         ("bCommandable", 5, True),
         ("bCountsForPopulation", 5, True),
     ]
-    vmad_sub = build_vmad([("workshopnpcscript", vmad_props)])
+    script_defs = [("workshopnpcscript", vmad_props)]
+    if form_id == 0x000E1D27:
+        script_defs.append(("ShellyTillerRecruitScript", [("MercyQuest", 1, 0x01000800)]))
+    vmad_sub = build_vmad(script_defs)
     
     pos = 0
     new_data = b""
@@ -118,7 +122,7 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
             new_acbs = struct.pack("<IIHH", flags, mag, hp, ap) + sbody[12:]
             new_data += make_subrecord("ACBS", new_acbs)
         elif ssig == b"SNAM" and not snam_added:
-            new_data += make_subrecord("SNAM", struct.pack("<IB", 0x000337F3, 0xFF)) # WorkshopNPCFaction
+            new_data += make_subrecord("SNAM", struct.pack("<Ib", 0x000337F3, 0)) # WorkshopNPCFaction, rank 0
             new_data += rec_data[pos:pos+6+slen]
             snam_added = True
         else:
@@ -128,8 +132,12 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
     return make_record("NPC_", form_id, 0, new_data)
 
 NPC_OVERRIDES = [
+    (0x00023328, 20642059, False, True, "GoodneighborDrifterM01"),
     (0x00023346, 20641294, False, True, "GoodneighborDrifterF01"),
     (0x00023347, 20640853, False, True, "GoodneighborDrifterF02Ghoul"),
+    (0x0004F047, 19334810, False, True, "GoodneighborDrifterM03Ghoul"),
+    (0x0004F049, 19333955, False, True, "GoodneighborDrifterM02"),
+    (0x0004F04B, 19333032, False, True, "GoodneighborDrifterF03"),
     (0x000BBF84, 19245698, False, True, "LvlPrewarCultist"),
     (0x000BBF86, 19244318, False, True, "EncPrewarCultist01"),
     (0x000BEBA2, 19231829, False, True, "LvlPrewarCultistGuard"),
@@ -255,7 +263,8 @@ def main():
         ("MercyRecruitmentPerk",              1, 0x01000802),
         ("CivilianRecruitDialogueMessage",    1, 0x01000803),
         ("IsShellyRecruited",                 5, False),
-        ("IsShellySpared",                    5, False)
+        ("IsShellySpared",                    5, False),
+        ("IsTheaterCultistsFixed",            5, False)
     ]
 
     qust_sub = b""
@@ -275,6 +284,10 @@ def main():
         f.write(total_plugin)
 
     print(f"Successfully generated {TARGET_ESP} ({len(total_plugin)} bytes).")
+
+    if os.path.exists(os.path.dirname(GAME_DATA_ESP)):
+        shutil.copy2(TARGET_ESP, GAME_DATA_ESP)
+        print(f"Deployed plugin to {GAME_DATA_ESP}")
 
 if __name__ == "__main__":
     main()

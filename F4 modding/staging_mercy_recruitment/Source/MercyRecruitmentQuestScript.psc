@@ -22,6 +22,7 @@ Message Property CivilianRecruitDialogueMessage Auto Const
 ;-- State Properties ---------------------------------------
 Bool Property IsShellyRecruited = False Auto
 Bool Property IsShellySpared = False Auto
+Bool Property IsTheaterCultistsFixed = False Auto
 
 ;-- Helper Getters -----------------------------------------
 Actor Function GetShelly()
@@ -85,7 +86,7 @@ EndEvent
 
 Function ShowShellyDialogue()
     Actor shelly = GetShelly()
-    If shelly == None
+    If shelly == None || IsShellyRecruited || IsShellySpared
         Return
     EndIf
     
@@ -135,9 +136,9 @@ Function AssignActorToSettlement(Actor akTarget, Location targetLoc, workshopnpc
     If wsNPC != None
         wsNPC.SetWorkshopStatus(True)
         wsNPC.bCountsForPopulation = True
-        wsNPC.bCommandable = True
-        wsNPC.bAllowMove = True
-        wsNPC.bAllowCaravan = True
+        wsNPC.SetCommandable(True)
+        wsNPC.SetAllowMove(True)
+        wsNPC.SetAllowCaravan(True)
         
         If ws != None && wsNPC.GetWorkshopID() != ws.GetWorkshopID()
             WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, ws, False)
@@ -156,6 +157,10 @@ EndFunction
 
 ;-- Auto-Recovery For Theater Cultists ----------------------
 Function FixTheaterCultists()
+    If IsTheaterCultistsFixed
+        Return
+    EndIf
+
     workshopscript hangmansWS = Game.GetForm(0x001F0711) as workshopscript
     If hangmansWS == None && WorkshopParent != None
         Location hangmansLoc = Game.GetForm(0x001B8C53) as Location
@@ -186,12 +191,12 @@ Function FixTheaterCultists()
             If cultist.IsInFaction(WorkshopNPCFaction)
                 workshopnpcscript wsNPC = cultist as workshopnpcscript
                 If wsNPC != None
-                    If wsNPC.GetWorkshopID() != hangmansWS.GetWorkshopID()
-                        wsNPC.bCountsForPopulation = True
-                        wsNPC.bCommandable = True
-                        wsNPC.bAllowMove = True
-                        wsNPC.bAllowCaravan = True
+                    If wsNPC.GetWorkshopID() < 0
                         wsNPC.SetWorkshopStatus(True)
+                        wsNPC.bCountsForPopulation = True
+                        wsNPC.SetCommandable(True)
+                        wsNPC.SetAllowMove(True)
+                        wsNPC.SetAllowCaravan(True)
                         
                         If WorkshopParent.PermanentActorAliases != None
                             WorkshopParent.PermanentActorAliases.AddRef(cultist as ObjectReference)
@@ -239,6 +244,7 @@ Function FixTheaterCultists()
         hangmansWS.RecalculateWorkshopResources(True)
         Debug.Trace("[MercyRecruitment] FixTheaterCultists: Auto-recovered and registered " + fixedCount + " theater cultists to Hangman's Alley.", 0)
         Debug.Notification("Завербовані культисти театру стали повноцінними поселенцями Завулку шибеника (" + fixedCount + ").")
+        IsTheaterCultistsFixed = True
     EndIf
 EndFunction
 
@@ -262,6 +268,8 @@ Function RecruitShelly(Actor akShelly)
         
         akShelly.StopCombat()
         akShelly.StopCombatAlarm()
+        akShelly.SetCrimeFaction(None)
+        akShelly.SetValue(Game.GetAggressionAV(), 0.0)
         akShelly.AddToFaction(WorkshopNPCFaction)
         akShelly.AddToFaction(REIgnoreForCleanup)
         akShelly.AddToFaction(PlayerFaction)
@@ -272,14 +280,16 @@ Function RecruitShelly(Actor akShelly)
         
         AssignActorToSettlement(akShelly, targetLoc, wsNPC)
         
-        ; Безпечне закриття опціонального вбивства у квесті MS04
+        ; Безпечне закриття опціонального вбивства у квесті MS04 (Alias ID 57 = KendraTarget)
         If MS04 != None
             MS04.SetObjectiveDisplayed(442, False, False)
-            ReferenceAlias kendraTarget = MS04.GetAlias(80) as ReferenceAlias
+            ReferenceAlias kendraTarget = MS04.GetAlias(57) as ReferenceAlias
             If kendraTarget != None
                 kendraTarget.Clear()
             EndIf
         EndIf
+        
+        UnregisterForRemoteEvent(akShelly as ScriptObject, "OnActivate")
         
         TriggerPiperAffinityReaction(15.0)
         Debug.Notification("Шеллі Тіллер завербована та вирушила до поселення.")
@@ -297,14 +307,19 @@ Function SpareShelly(Actor akShelly)
     
     If MS04 != None
         MS04.SetObjectiveDisplayed(442, False, False)
-        ReferenceAlias kendraTarget = MS04.GetAlias(80) as ReferenceAlias
+        ReferenceAlias kendraTarget = MS04.GetAlias(57) as ReferenceAlias
         If kendraTarget != None
             kendraTarget.Clear()
         EndIf
     EndIf
     
     akShelly.StopCombat()
+    akShelly.StopCombatAlarm()
+    akShelly.SetCrimeFaction(None)
+    akShelly.SetValue(Game.GetAggressionAV(), 0.0)
+    akShelly.AddToFaction(PlayerFaction)
     akShelly.BlockActivation(False, False)
+    UnregisterForRemoteEvent(akShelly as ScriptObject, "OnActivate")
     akShelly.EvaluatePackage(False)
     
     TriggerPiperAffinityReaction(10.0)
@@ -378,6 +393,17 @@ Function RecruitPeacefulCivilian(Actor akTarget)
         Return
     EndIf
     
+    ; Перенаправлення Шеллі Тіллер на спеціальний сюжетний діалог
+    If akTarget == GetShelly()
+        ShowShellyDialogue()
+        Return
+    EndIf
+    
+    ; Захист активних супутників від вербування як звичайних поселенців
+    If akTarget.IsInFaction(CurrentCompanionFaction)
+        Return
+    EndIf
+    
     ; 1. Перевірка: чи персонаж уже є поселенцем і прив'язаний до майстерні
     If akTarget.IsInFaction(WorkshopNPCFaction) && akTarget.GetLinkedRef(WorkshopParent.WorkshopItemKeyword) != None
         Debug.Notification("Цей персонаж уже живе у вашому поселенні.")
@@ -407,6 +433,7 @@ Function RecruitPeacefulCivilian(Actor akTarget)
         playerCharisma = player.GetValue(CharismaAV)
     EndIf
     
+    Bool paidCaps = False
     If CivilianRecruitDialogueMessage != None
         Int choice = CivilianRecruitDialogueMessage.Show(playerCharisma, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         If choice == 0
@@ -423,6 +450,7 @@ Function RecruitPeacefulCivilian(Actor akTarget)
                     Return
                 EndIf
                 player.RemoveItem(CapsItem as Form, 50, False, None)
+                paidCaps = True
             EndIf
         Else
             ; 2: «Бувай (Скасувати)»
@@ -457,6 +485,10 @@ Function RecruitPeacefulCivilian(Actor akTarget)
         TriggerPiperAffinityReaction(15.0)
         Debug.Notification("Мирний житель погодився і вирушив до поселення.")
     Else
+        ; Якщо вербування скасовано, а гравець заплатив кришки — повертаємо їх
+        If paidCaps && CapsItem != None
+            player.AddItem(CapsItem as Form, 50, True)
+        EndIf
         Debug.Notification("Вербування скасовано.")
     EndIf
 EndFunction

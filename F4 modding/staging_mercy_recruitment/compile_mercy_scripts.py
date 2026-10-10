@@ -6,6 +6,7 @@ Compiler script for MercyRecruitment Papyrus scripts using Caprica and Champolli
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -15,6 +16,7 @@ CACHE_DIR = os.path.join(BASE_DIR, "cache", "base_scripts")
 STAGING_DIR = os.path.join(BASE_DIR, "F4 modding", "staging_mercy_recruitment")
 SRC_DIR = os.path.join(STAGING_DIR, "Source")
 OUT_DIR = os.path.join(STAGING_DIR, "Scripts")
+GAME_SCRIPTS_DIR = os.path.join(BASE_DIR, "game", "Data", "Scripts")
 
 CAPRICA_EXE = os.path.join(BASE_DIR, "installer", "caprica", "Caprica.exe")
 FLAGS_FLG = os.path.join(BASE_DIR, "installer", "caprica", "Institute_Papyrus_Flags.flg")
@@ -23,6 +25,7 @@ CHAMPOLLION_EXE = os.path.join(BASE_DIR, "installer", "champollion", "Champollio
 env = os.environ.copy()
 env["WINEPREFIX"] = WINE_PREFIX
 env["WINEDEBUG"] = "-all"
+env["WINEDLLOVERRIDES"] = "winedbg.exe=d;winemenubuilder.exe=d"
 
 pex_map = {}
 for fname in os.listdir(CACHE_DIR):
@@ -94,3 +97,11 @@ for script_name in scripts:
             decompile_type(missing_type)
 
 print("\nAll Mercy Recruitment scripts compiled successfully.")
+
+if os.path.exists(GAME_SCRIPTS_DIR):
+    for script_name in scripts:
+        pex_name = script_name.replace(".psc", ".pex")
+        src_pex = os.path.join(OUT_DIR, pex_name)
+        if os.path.exists(src_pex):
+            shutil.copy2(src_pex, os.path.join(GAME_SCRIPTS_DIR, pex_name))
+            print(f"Deployed {pex_name} -> {GAME_SCRIPTS_DIR}")
