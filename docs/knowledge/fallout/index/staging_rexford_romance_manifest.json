@@ -79,38 +79,38 @@
       },
       {
         "step": 2,
-        "action": "chosenPartner.MoveTo(HotelRexfordPlayerBed, 20.0, 20.0, 0.0, True)",
-        "sub_action": "Wait for chosenPartner.Is3DLoaded() -> SnapIntoInteraction(HotelRexfordPlayerBed) -> SetRestrained(True)"
+        "action": "chosenPartner.MoveTo(HotelMagnoliaMarkerREF, 0.0, 0.0, 0.0, True)",
+        "sub_action": "Wait for chosenPartner.Is3DLoaded() -> SetRestrained(True)"
       },
       {
         "step": 3,
-        "action": "Inventory check ClothesMagnoliaDress -> chosenPartner.UnequipItem(ClothesMagnoliaDress, False, True)",
-        "purpose": "Strip concert dress into sleep underwear state"
+        "action": "Inventory check ClothesSlinkyDress -> chosenPartner.UnequipItem(dress, True, True)",
+        "purpose": "Strip concert dress into sleep underwear state with abPreventEquip=True lock"
       },
       {
         "step": 4,
-        "action": "LoversEmbracePerkSpell.Cast(player, player)",
+        "action": "!player.HasSpell(LoversEmbracePerkSpell) -> LoversEmbracePerkSpell.Cast(player, player)",
         "notification": "Готель «Рексфорд»: Затишна ніч разом. Отримано «Обійми коханця»."
       },
       {
         "step": 5,
         "action": "Game.FadeOutGame(False, True, 0.0, 1.5, False)",
-        "purpose": "Morning light return: partners in bed together"
+        "purpose": "Morning light return: partners in bed room together"
       },
       {
         "step": 6,
-        "action": "Utility.Wait(3.5) for player stand-up -> chosenPartner.SetRestrained(False)",
+        "action": "Utility.Wait(5.0) for player stand-up & morning observation -> chosenPartner.SetRestrained(False)",
         "purpose": "Ensure player finished bed get-up animation before Magnolia rises"
       },
       {
         "step": 7,
-        "action": "chosenPartner.EquipItem(ClothesMagnoliaDress, False, True) -> EvaluatePackage(False)",
+        "action": "chosenPartner.EquipItem(dress, False, True) -> EvaluatePackage(False)",
         "purpose": "Morning dressing back into singer dress upon rising"
       },
       {
         "step": 8,
-        "action": "chosenPartner.SetLookAt(player, True) -> MagnoliaGreetScene03.ForceStart()",
-        "purpose": "Cinematic lover greeting dialogue"
+        "action": "!MagnoliaGreetScene03.IsPlaying() -> MagnoliaGreetScene03.Start()",
+        "purpose": "Cinematic lover greeting dialogue without overlap"
       }
     ],
     "safeguards": {

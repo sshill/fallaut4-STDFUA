@@ -11,6 +11,7 @@ ObjectReference Property GoodneighborMagnoliaSingMarker Auto Const
 Spell Property LoversEmbracePerkSpell Auto Const
 Scene Property MagnoliaGreetScene03 Auto Const
 Armor Property ClothesMagnoliaDress Auto Const
+Armor Property ClothesSlinkyDress Auto Const
 
 ;-- Configuration & Toggles -----------------------------
 Bool Property EnableMagnolia = True Auto
@@ -20,6 +21,7 @@ Float Property ReturnDelaySeconds = 180.0 Auto
 ;-- Internal State Variables ----------------------------
 Bool IsPartnerInHotel = False
 Actor ActiveHotelPartner = None
+Bool IsProcessingSleep = False
 
 ;-- Events ---------------------------------------------
 Event OnInit()
@@ -29,6 +31,12 @@ EndEvent
 
 Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
     Debug.Trace("[RexfordRomance] OnPlayerSleepStop event fired. Interrupted=" + abInterrupted + ", Bed=" + (akBed as String), 0)
+    If IsProcessingSleep
+        Debug.Trace("[RexfordRomance] OnPlayerSleepStop already processing. Bypassing duplicate call.", 0)
+        Return
+    EndIf
+    IsProcessingSleep = True
+
     If !abInterrupted
         Actor player = Game.GetPlayer()
         If player != None
@@ -69,6 +77,7 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
 
                 If hasActiveRomanticCompanion
                     Debug.Trace("[RexfordRomance] Active romantic companion present in Hotel Rexford. Magnolia suppressed.", 0)
+                    IsProcessingSleep = False
                     Return
                 EndIf
 
@@ -95,64 +104,75 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
                     Game.FadeOutGame(True, True, 0.1, 2.0, True)
                     Utility.Wait(1.5)
 
-                    ; Position partner on bed & wait for 3D load before snap
-                    If HotelRexfordPlayerBed != None
-                        chosenPartner.MoveTo(HotelRexfordPlayerBed, 20.0, 20.0, 0.0, True)
-                        Int wait3D = 0
-                        While !chosenPartner.Is3DLoaded() && wait3D < 15
-                            Utility.Wait(0.1)
-                            wait3D += 1
-                        EndWhile
-                        Bool snapSuccess = chosenPartner.SnapIntoInteraction(HotelRexfordPlayerBed)
-                        Debug.Trace("[RexfordRomance] Bed snap interaction result: " + snapSuccess, 0)
-                        chosenPartner.SetRestrained(True)
-                    Else
+                    ; Position partner on hotel room marker or beside bed
+                    If HotelMagnoliaMarkerREF != None
                         chosenPartner.MoveTo(HotelMagnoliaMarkerREF, 0.0, 0.0, 0.0, True)
-                        chosenPartner.SetRestrained(True)
+                    ElseIf HotelRexfordPlayerBed != None
+                        chosenPartner.MoveTo(HotelRexfordPlayerBed, 30.0, 30.0, 0.0, True)
                     EndIf
 
-                    If ClothesMagnoliaDress != None
-                        If chosenPartner.GetItemCount(ClothesMagnoliaDress) == 0
-                            chosenPartner.AddItem(ClothesMagnoliaDress, 1, True)
+                    ; Wait for 3D load before setting restraint
+                    Int wait3D = 0
+                    While !chosenPartner.Is3DLoaded() && wait3D < 15
+                        Utility.Wait(0.1)
+                        wait3D += 1
+                    EndWhile
+                    chosenPartner.SetRestrained(True)
+
+                    ; Resolve sleep dress property (ClothesSlinkyDress / ClothesMagnoliaDress)
+                    Armor dress = ClothesSlinkyDress
+                    If dress == None
+                        dress = ClothesMagnoliaDress
+                    EndIf
+
+                    If dress != None
+                        If chosenPartner.GetItemCount(dress) == 0
+                            chosenPartner.AddItem(dress, 1, True)
                         EndIf
-                        chosenPartner.UnequipItem(ClothesMagnoliaDress, False, True)
+                        ; abPreventEquip = True to lock unequipped state and prevent engine DOFT auto-reequip
+                        chosenPartner.UnequipItem(dress, True, True)
                     EndIf
                     ActiveHotelPartner = chosenPartner
                     IsPartnerInHotel = True
-                    Debug.Trace("[RexfordRomance] Partner " + (chosenPartner as String) + " positioned in bed in sleep state.", 0)
+                    Debug.Trace("[RexfordRomance] Partner " + (chosenPartner as String) + " positioned in hotel room in sleep state.", 0)
 
-                    ; Grant Lover's Embrace perk/spell
+                    ; Grant Lover's Embrace perk/spell (re-entrancy & duplicate guard)
                     If LoversEmbracePerkSpell != None
-                        LoversEmbracePerkSpell.Cast(player as ObjectReference, player as ObjectReference)
-                        Debug.Trace("[RexfordRomance] Lover's Embrace perk spell cast on player.", 0)
+                        If !player.HasSpell(LoversEmbracePerkSpell)
+                            LoversEmbracePerkSpell.Cast(player as ObjectReference, player as ObjectReference)
+                            Debug.Trace("[RexfordRomance] Lover's Embrace perk spell cast on player.", 0)
+                            Debug.Notification("Готель «Рексфорд»: Затишна ніч разом. Отримано «Обійми коханця».")
+                        Else
+                            Debug.Trace("[RexfordRomance] Player already has Lover's Embrace spell active. Skipping duplicate cast.", 0)
+                        EndIf
                     EndIf
 
-                    Debug.Notification("Готель «Рексфорд»: Затишна ніч разом. Отримано «Обійми коханця».")
-
-                    ; Fade back in: player and partner are in bed
+                    ; Fade back in: player and partner in hotel room
                     Game.FadeOutGame(False, True, 0.0, 1.5, False)
 
                     ; 6. Morning Wake-Up & Dressing Phase
-                    ; Wait for player to fully finish standing-up animation (~3.5s)
-                    Utility.Wait(3.5)
+                    ; Wait for player to fully wake up and observe morning scene (~5.0s)
+                    Utility.Wait(5.0)
                     chosenPartner.SetRestrained(False)
 
                     ; Magnolia stands up, dresses back into singer concert dress
-                    If ClothesMagnoliaDress != None
-                        If chosenPartner.GetItemCount(ClothesMagnoliaDress) == 0
-                            chosenPartner.AddItem(ClothesMagnoliaDress, 1, True)
+                    If dress != None
+                        If chosenPartner.GetItemCount(dress) == 0
+                            chosenPartner.AddItem(dress, 1, True)
                         EndIf
-                        chosenPartner.EquipItem(ClothesMagnoliaDress, False, True)
+                        chosenPartner.EquipItem(dress, False, True)
                     EndIf
                     chosenPartner.SetLookAt(player as ObjectReference, True)
                     chosenPartner.EvaluatePackage(False)
 
+                    ; Start greeting dialogue only if not already playing (prevents dual dialogue audio overlap)
                     If MagnoliaGreetScene03 != None
-                        If MagnoliaGreetScene03.IsPlaying()
-                            MagnoliaGreetScene03.Stop()
+                        If !MagnoliaGreetScene03.IsPlaying()
+                            MagnoliaGreetScene03.Start()
+                            Debug.Trace("[RexfordRomance] MagnoliaGreetScene03 Start called.", 0)
+                        Else
+                            Debug.Trace("[RexfordRomance] MagnoliaGreetScene03 is already playing. Skipping duplicate start.", 0)
                         EndIf
-                        MagnoliaGreetScene03.ForceStart()
-                        Debug.Trace("[RexfordRomance] MagnoliaGreetScene03 ForceStart called.", 0)
                     EndIf
 
                     ; 7. Start return timer if enabled
@@ -166,6 +186,7 @@ Event OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)
             EndIf
         EndIf
     EndIf
+    IsProcessingSleep = False
 EndEvent
 
 Event OnTimer(Int aiTimerID)
@@ -182,11 +203,15 @@ Function ResetPartnerLocation()
             ActiveHotelPartner.ClearLookAt()
             ActiveHotelPartner.SetRestrained(False)
             ; Safeguard: Ensure concert dress is restored before returning to schedule
-            If ClothesMagnoliaDress != None
-                If ActiveHotelPartner.GetItemCount(ClothesMagnoliaDress) == 0
-                    ActiveHotelPartner.AddItem(ClothesMagnoliaDress, 1, True)
+            Armor dress = ClothesSlinkyDress
+            If dress == None
+                dress = ClothesMagnoliaDress
+            EndIf
+            If dress != None
+                If ActiveHotelPartner.GetItemCount(dress) == 0
+                    ActiveHotelPartner.AddItem(dress, 1, True)
                 EndIf
-                ActiveHotelPartner.EquipItem(ClothesMagnoliaDress, False, True)
+                ActiveHotelPartner.EquipItem(dress, False, True)
             EndIf
             If ActiveHotelPartner == MagnoliaREF && GoodneighborMagnoliaSingMarker != None
                 ActiveHotelPartner.MoveTo(GoodneighborMagnoliaSingMarker, 0.0, 0.0, 0.0, True)

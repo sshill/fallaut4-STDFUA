@@ -90,6 +90,7 @@ def main():
         ("LoversEmbracePerkSpell",        1, 0x000F3C1D), # SPEL
         ("MagnoliaGreetScene03",          1, 0x001AC13B), # SCEN
         ("ClothesMagnoliaDress",          1, 0x000FD9A8), # ARMO (ClothesSlinkyDress)
+        ("ClothesSlinkyDress",            1, 0x000FD9A8), # ARMO (ClothesSlinkyDress)
         ("EnableMagnolia",                5, True),       # Bool
         ("AutoReturnAfterDelay",          5, True),       # Bool
         ("ReturnDelaySeconds",            4, 180.0)       # Float
