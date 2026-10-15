@@ -117,7 +117,15 @@
       "3d_loading_guard": "15-frame poll While !chosenPartner.Is3DLoaded() prevents silent SnapIntoInteraction failure",
       "ai_package_inhibition": "SetRestrained(True) inhibits singing package until morning wake-up",
       "unclothed_prevention": "ResetPartnerLocation() and morning wake-up check item count and call EquipItem(ClothesMagnoliaDress)",
-      "nullptr_checks": "ClothesMagnoliaDress != None and HotelRexfordPlayerBed != None validated"
+      "nullptr_checks": "ClothesMagnoliaDress != None and HotelRexfordPlayerBed != None validated",
+      "reentrancy_lock": "IsProcessingSleep boolean flag inhibits duplicate engine event dispatches",
+      "spell_anti_stacking": "player.HasSpell(LoversEmbracePerkSpell) check prevents duplicate perk casts"
+    },
+    "known_limitations": {
+      "bed_interaction_status": "TBD",
+      "issue_summary": "Single bed NpcBedWoodLay01 (0x0010C651) has 1 interaction marker. Double bed is ideal for atmosphere, but non-format for simultaneous 2-actor laying animation without custom furniture markers.",
+      "current_solution": "Magnolia stably positioned at HotelMagnoliaMarkerREF (0x001AD903) beside bed.",
+      "documentation": "F4 modding/staging_rexford_romance/SCENARIO.md"
     }
   },
   "decompiled_scripts_manifest": [
@@ -125,7 +133,7 @@
       "script_name": "RexfordRomanceEncounterScript",
       "source_path": "F4 modding/staging_rexford_romance/Source/RexfordRomanceEncounterScript.psc",
       "binary_path": "F4 modding/staging_rexford_romance/Scripts/RexfordRomanceEncounterScript.pex",
-      "symbols_count": 13,
+      "symbols_count": 14,
       "status": "SYNCHRONIZED"
     }
   ]
