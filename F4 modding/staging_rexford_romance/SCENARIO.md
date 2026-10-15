@@ -1,4 +1,11 @@
-# Сценарій та поведінкова специфікація: Rexford Romance (Магнолія)
+<p align="right">
+  <b>Language / Мова:</b>
+  <a href="#українська-версія--ukrainian-version">🇺🇦 Українська</a> |
+  <a href="#english-version--англійська-версія">🇬🇧 English</a>
+</p>
+<hr/>
+
+# <a id="українська-версія--ukrainian-version"></a>🇺🇦 Сценарій та поведінкова специфікація: Rexford Romance (Магнолія)
 
 ## 1. Загальний опис та наративний контекст
 Модуль **Rexford Romance** додає повноцінну циклічну постільну сцену та динамічний гардероб для Магнолії (співачки з клубу «Третя рейка», Добросусідство) у номері готелю «Рексфорд».
@@ -75,3 +82,85 @@
 > [!IMPORTANT]
 > **Bed Model & Multi-Actor Furniture Overhaul:** **TBD (To Be Determined)**.  
 > Завдання внесено до беклогу для майбутнього етапу: створення кастомного двоспального ліжка з двома ізольованими маркерами взаємодії або налаштування безшовної idle-пози відпочинку (`PlayIdle`).
+
+<br/>
+<hr/>
+<br/>
+
+# <a id="english-version--англійська-версія"></a>🇬🇧 Encounter Scenario & Behavioral Specification: Rexford Romance (Magnolia)
+
+## 1. Overview & Narrative Context
+The **Rexford Romance** mod introduces a complete, repeatable overnight romantic bed scene and dynamic sleep wardrobe system for Magnolia (the lounge singer from The Third Rail, Goodneighbor) inside the Player's suite at Hotel Rexford.
+
+In vanilla Fallout 4, dating Magnolia is a one-time scripted event triggered by `DialogueGoodneighbor.MagnoliaDate()`. After this encounter completes, romantic interactions cease permanently, and sleeping in Hotel Rexford provides no unique romantic ambiance. This overhaul transforms the relationship into a living, cyclic mechanic featuring dynamic wardrobe stripping, wake-up choreography, and rest perk integration.
+
+---
+
+## 2. Gameplay State Machine & Choreography
+
+### Step 1: Entry Conditions
+The encounter evaluates inside the `OnPlayerSleepStop(Bool abInterrupted, ObjectReference akBed)` event when:
+1. `!abInterrupted`: Sleep completed normally without combat alerts or interruptions.
+2. `isRexfordBed`: The player slept inside Hotel Rexford (in `HotelRexfordPlayerBed` `0x0010C651` or within cell `GoodneighborHotelRexford`).
+3. `magnoliaRomanced`: Magnolia has been successfully romanced in `DialogueGoodneighbor` (`DateComplete == 1` or `MagnoliaFlirt >= 3`).
+4. `!hasActiveRomanticCompanion`: **Companion Conflict Guard:** If another romanced companion (Piper, Cait, Curie, Danse, etc. with `IsRomantic() && IsInfatuated()`) is present near the player, Magnolia's appearance is suppressed (`Return`).
+5. `!IsProcessingSleep`: **Re-entrancy Lock:** Prevents double execution when the game engine fires multiple wake-up events.
+
+### Step 2: Night Transition & Positioning
+1. Cinematic screen fade-out: `Game.FadeOutGame(True, True, 0.1, 2.0, True)`.
+2. Magnolia teleports into the suite at `HotelMagnoliaMarkerREF` (`0x001AD903`) next to the bed.
+3. 3D load polling guard (`chosenPartner.Is3DLoaded()`).
+4. Actor movement inhibitor enabled: `chosenPartner.SetRestrained(True)` to hold the sleep repose state.
+
+### Step 3: Dynamic Sleep Wardrobe
+1. Singer dress presence verified: `ClothesSlinkyDress` (`0x000FD9A8`). If not in inventory, silently added (`AddItem(dress, 1, True)`).
+2. **Wardrobe stripping with equipment lock:**
+   ```papyrus
+   chosenPartner.UnequipItem(dress, True, True) ; abPreventEquip = True
+   ```
+   *Critical:* Setting `abPreventEquip = True` hardware-locks the engine from allowing Magnolia's default outfit (`DOFT` `OutfitMagnolia`) from auto-re-equipping the gown during sleep. She remains reliably in her underwear.
+
+### Step 4: Romance Perk Bonus
+1. Active spell check: `!player.HasSpell(LoversEmbracePerkSpell)`.
+2. Spell applied: `LoversEmbracePerkSpell.Cast(player, player)` (`0x000F3C1D`).
+3. On-screen notification: `Hotel Rexford: Cozy night together. Received Lover's Embrace.`
+
+### Step 5: Morning Wake-Up & Dressing Phase
+1. Morning light fade-in: `Game.FadeOutGame(False, True, 0.0, 1.5, False)`.
+2. **Observation pause (5.0 seconds):** Player gets up from bed and observes Magnolia in morning repose.
+3. Restraint lifted: `chosenPartner.SetRestrained(False)`.
+4. Dressing back: `chosenPartner.EquipItem(dress, False, True)`.
+5. Magnolia faces the player (`chosenPartner.SetLookAt(player, True)`) and refreshes AI packages.
+6. Lover greeting scene started:
+   ```papyrus
+   If !MagnoliaGreetScene03.IsPlaying()
+       MagnoliaGreetScene03.Start()
+   EndIf
+   ```
+   *Safeguard:* Checking `!IsPlaying()` prevents overlapping dual-audio lines with vanilla scenes.
+
+### Step 6: Return Cycle
+1. Return timer started: `StartTimer(180.0, 1001)`.
+2. If player leaves Hotel Rexford or distance exceeds 1500 units, `ResetPartnerLocation()` restores concert dress and returns Magnolia to her stage microphone at The Third Rail (`GoodneighborMagnoliaSingMarker`, `0x00075EBA`).
+
+---
+
+## 3. Technical Bed Layout & Marker Analysis
+
+### Current State & Failure Root Cause
+The room contains the reference `HotelRexfordPlayerBed` (`0x0010C651`).
+- **Base Form:** `NpcBedWoodLay01` (Furniture).
+- **Marker Limit:** Vanilla **single bed** containing exactly **one interaction marker** (`LayEntry` / `LaySleep`).
+- **Why `SnapIntoInteraction` Fails:** When the player sleeps or wakes up, the single interaction marker is already occupied by the player's collision/animation. The Creation Engine call `chosenPartner.SnapIntoInteraction(HotelRexfordPlayerBed)` returns `False`, causing the actor to snap into an upright standing pose.
+
+### Double Bed Feasibility Analysis
+- **Atmospheric Value:** A double bed (`BedDouble01` / `PrewarBedDouble`) fits the suite aesthetics and narrative perfectly.
+- **Animation Non-format Issue:** Dual simultaneous actor sleeping in Creation Engine requires paired furniture markers (Left/Right) with synchronized animation transitions (`BedEntry` -> `BedSleep` -> `BedExit`). Vanilla beds do not support two simultaneous sleeping actors without specialized multi-marker furniture records or external animation frameworks.
+
+### Current Stable Workaround
+Magnolia is positioned at `HotelMagnoliaMarkerREF` (`0x001AD903`) directly beside the bed in sleepwear, preventing physics clipping, crash-to-desktop, or broken furniture interactions.
+
+### Roadmap & Bed Fix Status
+> [!IMPORTANT]
+> **Bed Model & Multi-Actor Furniture Overhaul:** **TBD (To Be Determined)**.  
+> Scheduled for future milestone: creating custom dual-actor furniture markers or implementing seamless idle repose poses (`PlayIdle`).
