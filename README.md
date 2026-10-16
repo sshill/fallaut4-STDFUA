@@ -26,7 +26,8 @@
 [ 🧪 **HIL Mock Feeder Benchmark** ](tests/mock_hardware_feeder.py) &nbsp;|&nbsp; 
 [ 🎮 **Committer & Tester Setup Guide (GOTY v1.10.163.0)** ](docs/SETUP_GUIDE.md) &nbsp;|&nbsp; 
 [ 🗺️ **Grand Campaign Expansion Model** ](grand_campaign_expansion_model.md) &nbsp;|&nbsp; 
-[ 🤝 **Contributor Guide (Dual-Track)** ](CONTRIBUTING.md)
+[ 🤝 **Contributor Guide (Dual-Track)** ](CONTRIBUTING.md) &nbsp;|&nbsp; 
+[ 🛠️ **Contributor Hybrid IDE** ](https://github.com/sshill/Hybrid-IDE-for-contributirs)
 
 ---
 

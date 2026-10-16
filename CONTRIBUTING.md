@@ -29,6 +29,23 @@
 
 ---
 
+## 🛠️ Рекомендоване середовище розробки: Hybrid IDE for Contributors
+
+Для максимальної продуктивності, автоматизованої перевірки синтаксису та AI-оркестрації розроблено спеціалізоване середовище:  
+👉 **[sshill/Hybrid-IDE-for-contributirs](https://github.com/sshill/Hybrid-IDE-for-contributirs)**
+
+### Чому варто встановити:
+* **Автоматизація перевірок:** Вбудовані перевірки лінтерів, компіляції та тестів на кожному етапі.
+* **Ізоляція середовища:** Чисті конфігурації для роботи без ризику конфліктів системних залежностей.
+* **ШІ-оркестрація:** Інтеграція з Gemini API та локальною Ollama для підказок та рев'ю коду.
+
+> [!IMPORTANT]
+> **Умови розгортання та фінансування (Важливе застереження):**  
+> 1. **Самостійне розгортання:** Налаштування робочої станції, інструментів та оточення контриб'ютор виконує самостійно за інструкцією з репозиторію `Hybrid-IDE-for-contributirs`.  
+> 2. **Оплата Google Cloud / Gemini API:** Використання рекомендованого пакета Google (Google Cloud / Gemini API) або сторонніх LLM-підписок розробник покриває **повністю самостійно за власний кошт**. Проєкт на поточному етапі не відшкодовує витрати на сторонні хмарні сервіси.
+
+---
+
 ## 🎮 Траєкторія А: Геймдев та моддинг Fallout 4 (Creation Engine)
 
 Цей напрям призначений для модмейкерів, 3D-моделістів, сценаристів та розробників Papyrus.
@@ -133,6 +150,23 @@ To allow contributors to focus directly on their domain of expertise without unn
 • ESP plugins & Creation Engine quests                     • BLE biosensors (Polar H10, CGM LinX)
 • Scenario choreography & dynamic wardrobe                 • Headless HIL emulation & benchmarks
 ```
+
+---
+
+## 🛠️ Recommended Development Environment: Hybrid IDE for Contributors
+
+To maximize engineering velocity, automated syntax auditing, and AI orchestration, we recommend our specialized development suite:  
+👉 **[sshill/Hybrid-IDE-for-contributirs](https://github.com/sshill/Hybrid-IDE-for-contributirs)**
+
+### Why Install:
+* **Automated Checks:** Built-in linters, compilation hooks, and test runners on every commit.
+* **Environment Isolation:** Hermetic configurations to prevent dependency conflicts across host OSes.
+* **AI Orchestration:** Gemini API and local Ollama integrations for intelligent completion and policy reviews.
+
+> [!IMPORTANT]
+> **Workstation Deployment & Cloud Costs (Mandatory Notice):**  
+> 1. **Self-Managed Deployment:** Setting up the workstation, tools, and developer environment is the sole responsibility of the contributor per the setup guide in `Hybrid-IDE-for-contributirs`.  
+> 2. **Google Cloud / Gemini API Costs:** The recommended Google package (Google Cloud / Gemini API) or third-party LLM services must be **funded independently by the contributor**. The project does not cover or reimburse these expenses at this stage.
 
 ---
 
