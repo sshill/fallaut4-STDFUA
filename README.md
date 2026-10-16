@@ -25,7 +25,8 @@
 [ 📜 **Interface Control Document (ICD Proto)** ](proto/telemetry_bus.proto) &nbsp;|&nbsp; 
 [ 🧪 **HIL Mock Feeder Benchmark** ](tests/mock_hardware_feeder.py) &nbsp;|&nbsp; 
 [ 🎮 **Committer & Tester Setup Guide (GOTY v1.10.163.0)** ](docs/SETUP_GUIDE.md) &nbsp;|&nbsp; 
-[ 🗺️ **Grand Campaign Expansion Model** ](grand_campaign_expansion_model.md)
+[ 🗺️ **Grand Campaign Expansion Model** ](grand_campaign_expansion_model.md) &nbsp;|&nbsp; 
+[ 🤝 **Contributor Guide (Dual-Track)** ](CONTRIBUTING.md)
 
 ---
 
@@ -201,9 +202,31 @@
 
 ---
 
-## 6. 🤝 Ліцензія та участь у проєкті
+## 6. 🤝 Участь у проєкті та співпраця (Contributor Navigator & License)
 
-Проєкт відкрито для дослідників, ветеранів та розробників на умовах **[MIT License](LICENSE)**.
+Проєкт відкрито для ветеранів ЗСУ, дослідників біоінженерії, Linux-розробників та геймдев-моддерів на умовах **[MIT License](LICENSE)**.
+
+Для зручності нових учасників документацію та завдання розділено на **дві автономні траєкторії**:
+
+```
+                       [ fallaut4-STDFUA Contributing ]
+                                      │
+       ┌──────────────────────────────┴──────────────────────────────┐
+       ▼                                                             ▼
+[ 🎮 ТРАЄКТОРІЯ А: FALLOUT 4 MODDING ]             [ ⚡ ТРАЄКТОРІЯ Б: КІБЕРФІЗИКА ТА СЕНСОРИ ]
+• Creation Engine / Papyrus (.psc / .pex)          • 1-мс детерміністична шина (telemetry_bus.proto)
+• 3D-моделювання та анімації (Blender/NifSkope)    • Linux kernel (evdev, uinput, C LD_PRELOAD)
+• Квести, динамічний гардероб та українізація      • Headless HIL емуляція та BLE сенсори (Polar H10)
+```
+
+### 🚀 Як почати та обрати завдання:
+1. 📖 **Детальний посібник:** Ознайомтеся з [**`CONTRIBUTING.md`**](CONTRIBUTING.md) та стандартами спільноти [**`CODE_OF_CONDUCT.md`**](CODE_OF_CONDUCT.md).
+2. 🎯 **Пріоритетні відкриті завдання (Call for Contributors):**
+   * 🛌 **Rexford Romance (3D / Анімація):** Створення кастомної моделі двоспального ліжка з парними меблевими маркерами сну (`LayEntry`/`LaySleep`) для Магнолії та Гравця — див. [SCENARIO.md](F4%20modding/staging_rexford_romance/SCENARIO.md) та [README.md](F4%20modding/staging_rexford_romance/README.md).
+   * 🕵️ **Ellie Romance (Діалоги / Квести):** Розширення діалогових гілок та налаштування компаньйонського штучного інтелекту.
+   * 🎯 **Mercy Recruitment (Поселення):** Реєстрація Шеллі Тіллер у системі поселень через `WorkshopNPCScript`.
+   * ⚡ **Телеметричний стенд (Linux C / Python):** Оптимізація udev-правил гарячого підключення педалей та розширення BLE-парсерів.
+3. 📝 **Стандартизовані шаблони задач:** Створюйте нові завдання або баг-репорти через готові форми у [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
 
 ---
 
@@ -400,9 +423,31 @@ Overcoming the artificial faction mutual-destruction constraints of *Fallout 4*,
 
 ---
 
-## 6. 🤝 Contributing & License
+## 6. 🤝 Contributing & License (Dual-Track Contributor Navigator)
 
-This project is open-source under the **[MIT License](LICENSE)**. Contributions from researchers, veterans, modders, and systems engineers are welcome.
+This project is open-source under the **[MIT License](LICENSE)**. Contributions from AFU combat veterans, neuro-rehabilitation researchers, Linux kernel engineers, and Creation Engine modders are welcome.
+
+To streamline onboarding, the repository is architected into **two distinct contribution tracks**:
+
+```
+                       [ fallaut4-STDFUA Contributing ]
+                                      │
+       ┌──────────────────────────────┴──────────────────────────────┐
+       ▼                                                             ▼
+[ 🎮 TRACK A: FALLOUT 4 MODDING ]                  [ ⚡ TRACK B: CYBER-PHYSICAL & TELEMETRY ]
+• Creation Engine / Papyrus (.psc / .pex)          • 1-ms deterministic bus (telemetry_bus.proto)
+• 3D modeling & animations (Blender/NifSkope)      • Linux kernel drivers (evdev, uinput, C LD_PRELOAD)
+• Quests, dynamic wardrobe & localization          • Headless HIL emulation & BLE biosensors (Polar H10)
+```
+
+### 🚀 Getting Started:
+1. 📖 **Comprehensive Guide:** Read [**`CONTRIBUTING.md`**](CONTRIBUTING.md) and our community [**`CODE_OF_CONDUCT.md`**](CODE_OF_CONDUCT.md).
+2. 🎯 **Current Priority Tasks (Call for Contributors):**
+   * 🛌 **Rexford Romance (3D / Animation):** Design a custom double bed model with paired synchronized sleeping interaction markers (`LayEntry`/`LaySleep`) for Magnolia and Player — see [SCENARIO.md](F4%20modding/staging_rexford_romance/SCENARIO.md) and [README.md](F4%20modding/staging_rexford_romance/README.md).
+   * 🕵️ **Ellie Romance (Companion & Dialogue):** Expand follower dialogue branches and idle packages.
+   * 🎯 **Mercy Recruitment (Settlement Hook):** Hook Shelly Tiller into the settlement system via `WorkshopNPCScript`.
+   * ⚡ **Telemetry Stand (Linux C / Python):** Optimize udev rules for plug-and-play foot pedal hotplugging and extend BLE parsers.
+3. 📝 **Issue Templates:** Submit structured issues or bug reports via [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
 
 ---
 
