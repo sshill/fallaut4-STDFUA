@@ -1,83 +1,73 @@
-# Fallout 4 Domain Execution Policy (Overlay on v0.8.3)
-**Доменне розширення для проєкту Fallout 4 Modding Stand**
+# Fallout 4 Research & Modding Stand — Domain Policy Overlay (v0.9.5)
+
+> [!IMPORTANT]
+> **Policy Inheritance Anchor (§9 GEMINI.md):**  
+> Цей маніфест є доменним оверлеєм над Core Kernel [`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md) v0.9.5 (підключеним через симлінк `fallaut/GEMINI.md`).
+> Базові 5 фаз життєвого циклу, апаратні шлюзи `pre_tool_hook.py`, ліміт 16 ГБ RAM, заборона моделей $\ge 14\text{B}$ локально та правила Git-First Local Access діють безумовно і не дублюються.
 
 ---
 
-## 1. Спадкування та субординація (Policy Inheritance)
-
-1. **Недоторканне базове ядро:**  
-   Цей проєкт строго наслідує Генеральний регламент v0.8.3 ([`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md)), включаючи принцип «Пиляти через Антігравіті зась! Тільки формування запитів та контроль», хаб `Antigravity_Mgr` (доступний через прямий симлінк `fallaut/Antigravity_Mgr`), першість оркестратора, локальну Ollama як Primary Workhorse та Groq Cloud як Hardware Fallback Hub.
-2. **Незмінність 5 фаз:**  
-   Діагностика (Status Banner + Git & Index First) $\rightarrow$ План (`implementation_plan.md`) $\rightarrow$ Підтвердження (Approval Gate) $\rightarrow$ Застосування (Step Budget $\le 20$) $\rightarrow$ Верифікація (`walkthrough.md`).
-3. **Дія системних залізних бар'єрів:**  
-   Системний хук `pre_tool_hook.py` є глобальним для всієї системи. Спроби сліпого обходу (`list_dir`, `find_by_name`), масового `git add -f` на каталоги гри та непідтверджених комітів блокуються апаратно.
+## 1. Доменне поле та апаратне середовище
+- **Роль агента:** *Cyber-Physical Game Research & Creation Engine Modding Engineer*.
+- **Домен:** `Fallout 4 Research & Modding Stand` (`/home/hills/Documents/fallaut`).
+- **Цільовий стек:** Linux Wine 10 / DXVK 2.6 / Mesa Iris Xe (ANV 25.0.7) / DualShock 4 v2 / Hardware Pedals / OSD Audio Chimes.
+- **Обов'язковий Domain Badge у Status Banner:**  
+  `🎯 [DOMAIN: Fallout 4 Research Stand | HOST: Linux Wine/Intel iGPU]`
 
 ---
 
-## 2. Автономний Git-репозиторій та Правила онлайн-пушу (Online Push Policy)
+## 2. Інженерні стандарти Creation Engine & Wine 10
 
-1. **Автономність репозиторію:**  
-   Каталог `/home/hills/Documents/fallaut/` є незалежним Git-репозиторієм (`fallaut/.git`) зі своїм власним remote (`origin/main`).
-2. **Локальні коміти:**  
-   Агенту дозволено самостійно фіксувати робочі кроки локальними комітами у гілці `fallaut`.
-3. **Санкція на онлайн-пуш (`git push origin`):**  
-   На відміну від системного репозиторію, де онлайн-пуш вимагає окремого зовнішнього гейту, у репозиторії `fallaut` відправка змін у віддалений репозиторій **дозволяється**, але **виключно за умови повного проходження Фази 5**:
-   - 0 помилок компіляції Caprica.
-   - Байткод `.pex` успішно розгорнуто у `game/Data/Scripts/`.
-   - Проведено оновлення тестового пакету `game/copilot_cmd.txt`.
+### 2.1 Пре-флайт перевірка сигнатур API (Pre-flight API Verification)
+- Перед написанням чи модифікацією викликів Papyrus (особливо нативних функцій: `RemoveAllItems`, `MoveTo`, `FadeOutGame`, `OnActivate`) обов'язково перевіряти сигнатури у ванільних дефініціях:  
+  `cache/base_scripts/<ScriptName>.psc`.
+- Категорично заборонено писати виклики API за пам'яттю з інших ігор (наприклад, плутати 3-параметричний `RemoveAllItems` зі Skyrim із 2-параметричним у Fallout 4).
 
----
+### 2.2 Стандарт компіляції Caprica через Wine 10
+- Запуск компілятора Caprica виконується з захищеними змінними оточення:
+  ```bash
+  WINEDEBUG="-all" WINEDLLOVERRIDES="winedbg.exe=d;winemenubuilder.exe=d"
+  ```
+  Це виключає дедлоки Wine та блокує інтерактивний дебагер `winedbg`.
+- У разі підвисання сесії обов'язково виконувати скидання: `wineserver -k`.
 
-## 3. Специфіка Фази 5 для Creation Engine (Заборона фіктивних фіксів)
-
-Будь-які модифікації коду чи плагінів рушія гри категорично заборонено вважати завершеними без доказового проходження таких пунктів:
-
-### А. Для скриптів Papyrus (.psc):
-- Обов'язкова компіляція через компілятор Caprica під Wine 10:
-  `python3 /home/hills/Documents/fallaut/F4\ modding/staging_*/build_*.py`
-- Перевірка розміру скомпільованого бінарника `.pex` у `game/Data/Scripts/` (розмір має бути > 0 байт).
-- Заборонено звітувати про успіх, якщо код не пройшов компілятор.
-
-### Б. Для механік поселенців, NPC та квестів (Creation Engine Rules):
-- **Заборона суто декларативних правок:** Зміна прапорців `Protected` чи `Essential` у ESP-файлі **НЕ робить NPC поселенцем**.
-- **Обов'язковий архітектурний чек-ліст поселенця:**
-  1. Прив'язка скрипта `WorkshopNPCScript` до актора або аліаса.
-  2. Додавання до фракції майстерні `WorkshopNPCFaction` (`0x0002058E`, rank 0).
-  3. Реєстрація актора в системі поселень через `WorkshopParentScript`.
+### 2.3 Архітектурний чек-ліст Creation Engine (NPC, квести, поселенці)
+- Заборона декларативних пустишок: зміна прапорців `Protected`/`Essential` в ESP **НЕ робить NPC поселенцем**.
+- Обов'язкові умови:
+  1. Прив'язка `WorkshopNPCScript` до актора або аліаса.
+  2. Реєстрація у `WorkshopNPCFaction` (`0x0002058E`, rank 0).
+  3. Реєстрація актора через `WorkshopParentScript`.
   4. Наявність діалогових пакетів бартеру та призначення (`DialogueSettler`).
-- **Консольний батник для live-перевірки:**  
-  Агент зобов'язаний згенерувати або оновити [`game/copilot_cmd.txt`](file:///home/hills/Documents/fallaut/game/copilot_cmd.txt) з командами діагностики (`sqv <QuestID>`, `prid <FormID>`, перевірка фракцій) для виконання у вікні гри (`bat copilot_cmd`).
 
 ---
 
-## 4. Протокол інспекції екрана гри через Git (Screen Inspection via Git Protocol)
- 
-1. **Заборона прямого виклику скріншотера з пісочниці:**  
-   Стандартна пісочниця блокує сокети X11. Агентам суворо заборонено запускати `xfce4-screenshooter` чи `import` безпосередньо.
-2. **Протокол аналізу кадру:**  
-   - Кадр знімається зовнішньою системною утилітою і записується у [`screens/latest.png`](file:///home/hills/Documents/fallaut/screens/latest.png).
-   - Знімок фіксується локальним комітом у Git:  
-     `git add screens/latest.png && git commit -m "screen: capture latest frame"`
-   - Агент зчитує та аналізує кадр через Git-First доступ без блокування графічної підсистеми.
+## 3. Діагностика, зворотний зв'язок та Live-тестування
+
+### 3.1 Інспекція екрана гри через Git
+- Заборонено прямий запуск X11-утиліт із пісочниці.
+- Використовувати виключно стандартизований скрипт стенда:  
+  `bash /home/hills/Documents/fallaut/capture_screen_to_git.sh "<контекст>"`  
+  *(Скрипт виконує знімок, валідацію, точковий `git add -f screens/latest.png` та локальний коміт).*
+- Перегляд кадру — строго через нативний `view_file` (`screens/latest.png`).
+
+### 3.2 Консольний батник live-перевірки
+- Для перевірки стану квестів і поселенців агент підтримує [`game/copilot_cmd.txt`](file:///home/hills/Documents/fallaut/game/copilot_cmd.txt) (`sqv <QuestID>`, `prid <FormID>`, фракції) для швидкого виконання у вікні гри через `bat copilot_cmd`.
+
+### 3.3 Валідація Фази 5 для плагінів
+- Перевірка розміру скомпільованого бінарника `.pex` у `game/Data/Scripts/` (розмір має бути > 0 байт).
+- Заборонено звітувати про успіх, якщо байткод не розгорнуто.
 
 ---
 
-## 5. Єдиний пакетний дозвіл для виконання (Batch Execution Protocol)
-- Усі дії під час Фази 4 виконуються пакетно.
-- Якщо потрібен запуск ігрових скриптів чи Wine — агент запитує єдиний пакетний дозвіл у Фазі 3, усуваючи повторні спливаючі запити.
+## 4. Залізні бар'єри домену (Anti-Drift Guardrails)
 
----
-
-## 6. Протокол прямого виконання на хості (Host-First Execution Protocol v0.8.3)
-
-1. **Скасування правила «Try sandboxed first» для підсистем домену:**  
-   Оскільки компілятор Caprica вимагає Wine 10 та запуск Windows-бінарників, локальна Ollama слухає `127.0.0.1:11434` (блокується пісочницею), а локальні коміти Git вимагають права запису у `.git`, намагатися запускати ці процеси в пісочниці категорично заборонено.
-2. **Обов'язковий режим `BypassSandbox: true`:**  
-   Для виконання таких команд агент зобов'язаний одразу і першим вибором використовувати `BypassSandbox: true`:
-   - Компіляція Papyrus та збірка плагінів: `python3 /home/hills/Documents/fallaut/F4 modding/...`
-   - Раннер гібридного пайплайну: `python3 "F4 modding/f4_pipeline_router.py" ...`
-   - Операції локального Git: `git add`, `git commit`, `git status` у репозиторії `fallaut`
-   - Системні аудіо-сповіщення: `aplay /home/hills/Documents/fallaut/scratch/chime_*.wav`
-3. **Автосхвалення через білий список `pre_tool_hook.py`:**  
-   Усі вказані команди входять до довіреного префіксного білого списку `pre_tool_hook.py` і санкціонуються автоматично (`decision: allow`) без модальних вікон блокування.
-
+1. **Zero Ad-Hoc Script Synthesis for Text (Звуження §6.1 ядра):**  
+   Оскільки `game/`, `scratch/` та `Fallout4Prefs.ini` ігноруються в `.gitignore`, операція `git show` для них не діє.  
+   **Читання логів (`game_crash.log`, `Papyrus.0.log`), списків плагінів (`plugins.txt`) та конфігів (`Fallout4Prefs.ini`) виконується ВИКЛЮЧНО через `view_file`.**  
+   Категорично заборонено генерувати Python-скрипти через Ollama/Groq для інспекції простих текстових файлів.
+2. **Zero In-Workspace AI API Clients (§8.4 ядра):**  
+   Заборонено синтезувати чи запускати в `scratch/` скрипти прямого доступу до зовнішніх API (Anthropic, OpenAI, Groq). Весь ШІ-інференс делегується виключно через ядро та `diagnostic_runner.py`.
+3. **Прямі правки конфігурацій гри (§6.2 ядра):**  
+   Файли `Fallout4Prefs.ini`, `Fallout4Custom.ini` та `game/copilot_cmd.txt` редагуються через `replace_file_content` без створення тимчасових утиліт. Перед правкою поточні значення фіксуються у звіті.
+4. **Онлайн-пуш репозиторію (Звуження §1/§8.4 ядра):**  
+   Команда `git push origin` у репозиторії `fallaut` дозволена **ВИКЛЮЧНО за прямої команди користувача** і лише за умов: 0 помилок Caprica, бінарник `.pex` валідний, тестовий пакет оновлено.
