@@ -1,4 +1,4 @@
-# Fallout 4 Research & Modding Stand — Domain Policy Overlay (v0.9.5)
+# Fallout 4 Research & Modding Stand — Domain Policy Overlay (v0.9.6)
 
 > [!IMPORTANT]
 > **Policy Inheritance Anchor (Global Plugin Architecture):**  
