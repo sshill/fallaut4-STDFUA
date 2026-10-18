@@ -108,6 +108,34 @@ Function ShowShellyDialogue()
     EndIf
 EndFunction
 
+;-- Async Settlement Assignment ----------------------------
+Event ObjectReference.OnWorkshopNPCTransfer(ObjectReference akSender, Location akNewWorkshopLocation, Keyword akActionKW)
+    Actor akActor = akSender as Actor
+    If akActor == None || WorkshopParent == None || akNewWorkshopLocation == None
+        Return
+    EndIf
+    
+    workshopscript ws = WorkshopParent.GetWorkshopFromLocation(akNewWorkshopLocation)
+    If ws == None
+        Return
+    EndIf
+    
+    akSender.SetLinkedRef(ws as ObjectReference, WorkshopParent.WorkshopItemKeyword)
+    akSender.SetPersistLoc(ws.myLocation)
+    If WorkshopParent.PermanentActorAliases != None
+        WorkshopParent.PermanentActorAliases.AddRef(akSender)
+    EndIf
+    WorkshopParent.ApplyWorkshopAliasData(akActor)
+    
+    workshopnpcscript wsNPC = akSender as workshopnpcscript
+    If wsNPC != None
+        WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, ws, False)
+        WorkshopParent.TryToAutoAssignActor(ws, wsNPC)
+    EndIf
+    ws.RecalculateWorkshopResources(True)
+    UnregisterForRemoteEvent(akSender as ScriptObject, "OnWorkshopNPCTransfer")
+EndEvent
+
 ;-- Settlement Registration Helper -------------------------
 Function AssignActorToSettlement(Actor akTarget, Location targetLoc, workshopnpcscript wsNPC)
     If akTarget == None
@@ -155,6 +183,46 @@ Function AssignActorToSettlement(Actor akTarget, Location targetLoc, workshopnpc
     akTarget.EvaluatePackage(False)
 EndFunction
 
+;-- Settler Registration For Theater Actors -----------------
+Bool Function RegisterTheaterSettler(Actor akActor, workshopscript akWS)
+    If akActor == None || akWS == None || akActor.IsDead()
+        Return False
+    EndIf
+    
+    akActor.AddToFaction(WorkshopNPCFaction)
+    akActor.SetLinkedRef(akWS as ObjectReference, WorkshopParent.WorkshopItemKeyword)
+    akActor.SetPersistLoc(akWS.myLocation)
+    If WorkshopParent.PermanentActorAliases != None
+        WorkshopParent.PermanentActorAliases.AddRef(akActor as ObjectReference)
+    EndIf
+    
+    akActor.SetCrimeFaction(None)
+    akActor.SetValue(Game.GetAggressionAV(), 0.0)
+    akActor.StopCombat()
+    akActor.StopCombatAlarm()
+    
+    workshopnpcscript wsNPC = akActor as workshopnpcscript
+    If wsNPC != None
+        wsNPC.SetWorkshopStatus(True)
+        wsNPC.bCountsForPopulation = True
+        wsNPC.SetCommandable(True)
+        wsNPC.SetAllowMove(True)
+        wsNPC.SetAllowCaravan(True)
+        If wsNPC.GetWorkshopID() != akWS.GetWorkshopID()
+            WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, akWS, False)
+            WorkshopParent.TryToAutoAssignActor(akWS, wsNPC)
+        EndIf
+    Else
+        WorkshopParent.AssignHomeMarkerToActor(akActor, akWS)
+    EndIf
+    WorkshopParent.ApplyWorkshopAliasData(akActor)
+    
+    akActor.SetRestrained(False)
+    akActor.BlockActivation(False, False)
+    akActor.EvaluatePackage(False)
+    Return True
+EndFunction
+
 ;-- Auto-Recovery For Theater Cultists ----------------------
 Function FixTheaterCultists()
     If IsTheaterCultistsFixed
@@ -187,58 +255,42 @@ Function FixTheaterCultists()
     Int fixedCount = 0
     While i < cultistIDs.Length
         Actor cultist = Game.GetForm(cultistIDs[i]) as Actor
-        If cultist != None && !cultist.IsDead()
-            If cultist.IsInFaction(WorkshopNPCFaction)
-                workshopnpcscript wsNPC = cultist as workshopnpcscript
-                If wsNPC != None
-                    If wsNPC.GetWorkshopID() < 0
-                        wsNPC.SetWorkshopStatus(True)
-                        wsNPC.bCountsForPopulation = True
-                        wsNPC.SetCommandable(True)
-                        wsNPC.SetAllowMove(True)
-                        wsNPC.SetAllowCaravan(True)
-                        
-                        If WorkshopParent.PermanentActorAliases != None
-                            WorkshopParent.PermanentActorAliases.AddRef(cultist as ObjectReference)
-                        EndIf
-                        
-                        WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, hangmansWS, False)
-                        WorkshopParent.TryToAutoAssignActor(hangmansWS, wsNPC)
-                        
-                        cultist.SetCrimeFaction(None)
-                        cultist.SetValue(Game.GetAggressionAV(), 0.0)
-                        cultist.StopCombat()
-                        cultist.StopCombatAlarm()
-                        cultist.SetRestrained(False)
-                        cultist.BlockActivation(False, False)
-                        cultist.EvaluatePackage(False)
-                        fixedCount += 1
-                    EndIf
-                Else
-                    ObjectReference linkedWS = cultist.GetLinkedRef(WorkshopParent.WorkshopItemKeyword)
-                    If linkedWS == None
-                        cultist.SetLinkedRef(hangmansWS as ObjectReference, WorkshopParent.WorkshopItemKeyword)
-                        WorkshopParent.AssignHomeMarkerToActor(cultist, hangmansWS)
-                        cultist.SetPersistLoc(hangmansWS.myLocation)
-                        If WorkshopParent.PermanentActorAliases != None
-                            WorkshopParent.PermanentActorAliases.AddRef(cultist as ObjectReference)
-                        EndIf
-                        WorkshopParent.ApplyWorkshopAliasData(cultist)
-                        
-                        cultist.SetCrimeFaction(None)
-                        cultist.SetValue(Game.GetAggressionAV(), 0.0)
-                        cultist.StopCombat()
-                        cultist.StopCombatAlarm()
-                        cultist.SetRestrained(False)
-                        cultist.BlockActivation(False, False)
-                        cultist.EvaluatePackage(False)
-                        fixedCount += 1
-                    EndIf
-                EndIf
-            EndIf
+        If RegisterTheaterSettler(cultist, hangmansWS)
+            fixedCount += 1
         EndIf
         i += 1
     EndWhile
+
+    ; Goodneighbor drifters at Hangman's Alley (base actor IDs from build_mercy_recruitment_esp.py)
+    Int[] drifterBaseIDs = new Int[6]
+    drifterBaseIDs[0] = 0x00023328
+    drifterBaseIDs[1] = 0x00023346
+    drifterBaseIDs[2] = 0x00023347
+    drifterBaseIDs[3] = 0x0004F047
+    drifterBaseIDs[4] = 0x0004F049
+    drifterBaseIDs[5] = 0x0004F04B
+    Keyword npcKW = Game.GetForm(0x00013794) as Keyword
+    If npcKW != None
+        ObjectReference[] nearby = hangmansWS.FindAllReferencesWithKeyword(npcKW as Form, 3000.0)
+        Int n = 0
+        While n < nearby.Length
+            Actor drifter = nearby[n] as Actor
+            If drifter != None && drifter != Game.GetPlayer()
+                ActorBase drifterBase = drifter.GetActorBase()
+                Int j = 0
+                While drifterBase != None && j < drifterBaseIDs.Length
+                    If drifterBase.GetFormID() == drifterBaseIDs[j]
+                        If RegisterTheaterSettler(drifter, hangmansWS)
+                            fixedCount += 1
+                        EndIf
+                        j = drifterBaseIDs.Length
+                    EndIf
+                    j += 1
+                EndWhile
+            EndIf
+            n += 1
+        EndWhile
+    EndIf
     
     If fixedCount > 0
         hangmansWS.RecalculateWorkshopResources(True)
@@ -260,6 +312,7 @@ Function RecruitShelly(Actor akShelly)
     If wsNPC != None && WorkshopParent != None
         targetLoc = WorkshopParent.AddPermanentActorToWorkshopPlayerChoice(akShelly, True)
     ElseIf akShelly != None
+        RegisterForRemoteEvent(akShelly as ScriptObject, "OnWorkshopNPCTransfer")
         targetLoc = akShelly.OpenWorkshopSettlementMenu(WorkshopAssignHomePermanentActor, None, None)
     EndIf
     
@@ -273,6 +326,9 @@ Function RecruitShelly(Actor akShelly)
         akShelly.AddToFaction(WorkshopNPCFaction)
         akShelly.AddToFaction(REIgnoreForCleanup)
         akShelly.AddToFaction(PlayerFaction)
+        If WorkshopParent != None && WorkshopParent.PermanentActorAliases != None
+            WorkshopParent.PermanentActorAliases.AddRef(akShelly as ObjectReference)
+        EndIf
         If REDialogueRescued != None
             akShelly.RemoveFromFaction(REDialogueRescued)
         EndIf

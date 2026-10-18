@@ -168,7 +168,7 @@ def make_mercy_recruitment_perk():
     perk_sub += make_subrecord("DESC", "Дозволяє запрошувати нейтральних мирних жителів Співдружності до своїх поселень.\x00")
     
     # VMAD on PERK with Fragment_Entry_00
-    props = [("MercyQuest", 1, 0x01000800)]
+    props = [("MercyQuest", 1, 0x01000800), ("WorkshopNPCFaction", 1, 0x000337F3)]
     frags = [(0, "MercyRecruitmentPerkScript", "Fragment_Entry_00")]
     perk_sub += build_perk_fragment_vmad("MercyRecruitmentPerkScript", props, frags)
     
@@ -180,7 +180,7 @@ def make_mercy_recruitment_perk():
     # Entry DATA: priority 14, flags 9, num args 2
     perk_sub += make_subrecord("DATA", struct.pack("<BBB", 14, 9, 2))
     
-    # Conditions: Target has ActorTypeNPC (0x00013794) == 1.0, Target GetDead == 0.0, Target not in WorkshopNPCFaction == 0.0
+    # Conditions: Target has ActorTypeNPC (0x00013794) == 1.0, Target GetDead == 0.0
     # PRKC: 1 = run on target
     perk_sub += make_subrecord("PRKC", b"\x01")
     
@@ -191,10 +191,6 @@ def make_mercy_recruitment_perk():
     # CTDA 2: GetDead == 0.0
     ctda_dead = bytearray.fromhex("009b1b00000000002e00000000000000000000000000000000000000ffffffff")
     perk_sub += make_subrecord("CTDA", bytes(ctda_dead))
-    
-    # CTDA 3: IsInFaction(WorkshopNPCFaction 0x000337F3) == 0.0
-    ctda_fac = bytearray.fromhex("009b1b000000000047000000f3370300000000000000000000000000ffffffff")
-    perk_sub += make_subrecord("CTDA", bytes(ctda_fac))
     
     # EPFT: 4 (String ID)
     perk_sub += make_subrecord("EPFT", b"\x04")
@@ -246,7 +242,7 @@ def main():
 
     # 5. QUST Record: MercyRecruitmentQuest (0x01000800)
     PROPERTIES = [
-        ("ShellyRef",                         1, 0x000E1D28),
+        ("ShellyRef",                         1, 0),
         ("PiperRef",                          1, 0x00002F1F),
         ("WorkshopParent",                    1, 0x0002058E),
         ("MS04",                              1, 0x00027556),
