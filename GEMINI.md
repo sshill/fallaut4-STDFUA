@@ -1,1 +1,0 @@
-/home/hills/Documents/GEMINI.md

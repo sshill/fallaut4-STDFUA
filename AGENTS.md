@@ -1,8 +1,8 @@
 # Fallout 4 Research & Modding Stand — Domain Policy Overlay (v0.9.5)
 
 > [!IMPORTANT]
-> **Policy Inheritance Anchor (§9 GEMINI.md):**  
-> Цей маніфест є доменним оверлеєм над Core Kernel [`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md) v0.9.5 (підключеним через симлінк `fallaut/GEMINI.md`).
+> **Policy Inheritance Anchor (Global Plugin Architecture):**  
+> Цей маніфест є доменним оверлеєм над Конституційним ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) v0.9.6.
 > Базові 5 фаз життєвого циклу, апаратні шлюзи `pre_tool_hook.py`, ліміт 16 ГБ RAM, заборона моделей $\ge 14\text{B}$ локально та правила Git-First Local Access діють безумовно і не дублюються.
 
 ---
