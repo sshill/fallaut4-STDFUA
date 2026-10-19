@@ -1,20 +1,31 @@
-# Fallout 4 Research & Modding Stand — Domain Policy Overlay (v0.9.6)
+# Fallout 4 Stand — Constitutional Dispatcher & Domain Overlay (Kernel v0.9.7)
 
 > [!IMPORTANT]
 > **Policy Inheritance Anchor (Global Plugin Architecture):**  
-> Цей маніфест є доменним оверлеєм над Конституційним ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) v0.9.6.
-> Базові 5 фаз життєвого циклу, апаратні шлюзи `pre_tool_hook.py`, ліміт 16 ГБ RAM, заборона моделей $\ge 14\text{B}$ локально та правила Git-First Local Access діють безумовно і не дублюються.
+> Цей маніфест є кореневим конституційним диспетчером та доменним оверлеєм над ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) v0.9.7.
+> Оскільки Antigravity автоматично завантажує виключно `<workspace_root>/AGENTS.md`, цей документ є авторитетним маршрутизатором для 3 піддоменів стенда.
 
 ---
 
-## 1. Доменне поле та апаратне середовище
+## 1. Доменне поле та трикомпонентна архітектура (Tripartite Architecture)
 - **Роль агента:** *Cyber-Physical Game Research & Creation Engine Modding Engineer*.
 - **Домен:** `Fallout 4 Research & Modding Stand` (`/home/hills/Documents/fallaut`).
 - **Цільовий стек:** Linux Wine 10 / DXVK 2.6 / Mesa Iris Xe (ANV 25.0.7) / DualShock 4 v2 / Hardware Pedals / OSD Audio Chimes.
 - **Обов'язковий Domain Badge у Status Banner:**  
-  `🎯 [DOMAIN: Fallout 4 Research Stand | HOST: Linux Wine/Intel iGPU]`
+  `🎯 [DOMAIN: Fallout 4 Stand Dispatcher | HOST: Linux Wine 10/Intel iGPU | v0.9.7]`
+
+### 1.1 Три спеціалізовані піддомени та правила маршрутизації
+1. **[`F4 modding/`](file:///home/hills/Documents/fallaut/F4%20modding/AGENTS.md):** Модифікація Creation Engine, Papyrus `.psc` ➔ `.pex`, Caprica, ESP builder.
+   * **Аудит:** Шлюз 4.1 (Claude Sonnet на `cache/base_scripts/*.psc`) + Шлюз 4.5 (Pre-Release e2e-аудит пакета через GitHub Copilot CLI).
+   * **Правила:** Реєстрація `.psc` у SLSA Provenance Ledger, розширений бюджет Фази 4 (60 кроків). Запуск компіляції та білдерів напряму без ad-hoc обгорток.
+2. **[`F4 Gameplay support/`](file:///home/hills/Documents/fallaut/F4%20Gameplay%20support/AGENTS.md):** Оперативна підтримка під час запущеної гри.
+   * **Аудит:** Стандартний Antigravity Supervisor (швидкий triage, `view_file` для логів/ini, `game/copilot_cmd.txt`, `capture_screen_to_git.sh`, chimes).
+   * **Ескалація:** Якщо дефект потребує правки `.psc` чи ESP — завдання ескалюється до `F4 modding/`.
+3. **[`F4 HW gaming/`](file:///home/hills/Documents/fallaut/F4%20HW%20gaming/AGENTS.md):** Кіберфізичний комплекс (DualShock 4 v2, педалі, HID-ізоляція `hide_hidraw.c`, OSD/HUD сервіси, аудіо-тракт).
+   * **Правила:** Symlink Shield (збереження 20 відносних симлінків у корені для лаунчера `launch_fallout4.sh`), затримка <= 5 мс.
 
 ---
+
 
 ## 2. Інженерні стандарти Creation Engine & Wine 10
 
@@ -71,3 +82,6 @@
    Файли `Fallout4Prefs.ini`, `Fallout4Custom.ini` та `game/copilot_cmd.txt` редагуються через `replace_file_content` без створення тимчасових утиліт. Перед правкою поточні значення фіксуються у звіті.
 4. **Онлайн-пуш репозиторію (Звуження §1/§8.4 ядра):**  
    Команда `git push origin` у репозиторії `fallaut` дозволена **ВИКЛЮЧНО за прямої команди користувача** і лише за умов: 0 помилок Caprica, бінарник `.pex` валідний, тестовий пакет оновлено.
+5. **Zero Symlink Tampering (Symlink Shield):**  
+   Заборонено видаляти або модифікувати 20 відносних символічних посилань у корені `fallaut/`, які зв'язують зовнішні лаунчери (`launch_fallout4.sh`, `.desktop`) з фізичними скриптами у `F4 HW gaming/`.
+
