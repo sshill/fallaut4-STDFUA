@@ -6,6 +6,9 @@
 - **Призначення:** Модифікація Creation Engine, розробка скриптів Papyrus, квести та інтеграція в гру.
 - **Стек:** Caprica (Wine 10), Papyrus (`.psc` ➔ `.pex`), xEdit, `capture_screen_to_git.sh`.
 - **Базовий сетап:** Ванільні сигнатури та скрипти рушія у `cache/base_scripts/`.
+- **Papyrus Source Code Control:** Вихідні скрипти `.psc` є повноцінним керованим кодом проєкту. Будь-які модифікації `.psc` підлягають реєстрації в SLSA Provenance Ledger.
+- **Host-First & Sandbox:** Виклики Wine 10, Caprica Compiler та операції копіювання/розгортання в `game/Data/` вимагають доступу до хоста і обов'язкового прапорця `BypassSandbox: true`.
+- **Dynamic Step Budget:** Фаза 4 у домені F4 modding вимагає контракту із розширеним бюджетом `dynamic_step_budget = 60` у `/tmp/antigravity_phase4_contract.json` через багатокроковий цикл компіляції Papyrus.
 
 ## 2. Шлюз 4.1: Аудит Claude Sonnet (Базовий сет F4)
 - **Розширений контекст аудиту:** При аудиті коду в Фазі 4 / 4.1 Claude Sonnet аналізує **НЕ лише diff змін**, а обов'язковий **повний сет задіяних файлів із базового сетапу F4**:
