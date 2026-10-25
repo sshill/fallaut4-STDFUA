@@ -15,7 +15,7 @@
   `🎯 [DOMAIN: Fallout 4 Stand Dispatcher | HOST: Linux Wine 10/Intel iGPU | v0.9.7]`
 
 ### 1.1 Три спеціалізовані піддомени та правила маршрутизації
-1. **[`F4 modding/`](file:///home/hills/Documents/fallaut/F4%20modding/AGENTS.md):** Модифікація Creation Engine, Papyrus `.psc` ➔ `.pex`, Caprica, ESP builder.
+1. **[`F4 modding/`](file:///home/hills/Documents/fallaut/F4%20modding/AGENTS.md):** Модифікація Creation Engine, декомпіляція Champollion 1.1.3 (`.pex` ➔ `.psc`), компіляція Caprica (`.psc` ➔ `.pex`), аудит через `f4_pipeline_router.py`, ESP builder.
    * **Аудит:** Шлюз 4.1 (Claude Sonnet на `cache/base_scripts/*.psc`) + Шлюз 4.5 (Pre-Release e2e-аудит пакета через GitHub Copilot CLI).
    * **Правила:** Реєстрація `.psc` у SLSA Provenance Ledger, розширений бюджет Фази 4 (60 кроків). Запуск компіляції та білдерів напряму без ad-hoc обгорток.
 2. **[`F4 Gameplay support/`](file:///home/hills/Documents/fallaut/F4%20Gameplay%20support/AGENTS.md):** Оперативна підтримка під час запущеної гри.
@@ -84,4 +84,6 @@
    Команда `git push origin` у репозиторії `fallaut` дозволена **ВИКЛЮЧНО за прямої команди користувача** і лише за умов: 0 помилок Caprica, бінарник `.pex` валідний, тестовий пакет оновлено.
 5. **Zero Symlink Tampering (Symlink Shield):**  
    Заборонено видаляти або модифікувати 20 відносних символічних посилань у корені `fallaut/`, які зв'язують зовнішні лаунчери (`launch_fallout4.sh`, `.desktop`) з фізичними скриптами у `F4 HW gaming/`.
+6. **Детерміністична декомпіляція замість ШІ (Decompiler Tool Enforcement):**  
+   Декомпіляція `.pex` бінарників Creation Engine виконується ВИКЛЮЧНО через `Champollion.exe` під Wine 10. Категорично заборонено намагатися парсити або дизасемблювати бінарні `.pex` чи `.esm` файли через LLM-моделі (Ollama, Groq). ШІ застосовується виключно до декомпільованого тексту `.psc` для очищення та рефакторингу.
 

@@ -4,11 +4,27 @@
 
 ## 1. Проєкт та середовище розробки
 - **Призначення:** Модифікація Creation Engine, розробка скриптів Papyrus, квести та інтеграція в гру.
-- **Стек:** Caprica (Wine 10), Papyrus (`.psc` ➔ `.pex`), xEdit, `capture_screen_to_git.sh`.
-- **Базовий сетап:** Ванільні сигнатури та скрипти рушія у `cache/base_scripts/`.
-- **Papyrus Source Code Control:** Вихідні скрипти `.psc` є повноцінним керованим кодом проєкту. Будь-які модифікації `.psc` підлягають реєстрації в SLSA Provenance Ledger.
-- **Host-First & Sandbox:** Виклики Wine 10, Caprica Compiler та операції копіювання/розгортання в `game/Data/` вимагають доступу до хоста і обов'язкового прапорця `BypassSandbox: true`.
-- **Dynamic Step Budget:** Фаза 4 у домені F4 modding вимагає контракту із розширеним бюджетом `dynamic_step_budget = 60` у `/tmp/antigravity_phase4_contract.json` через багатокроковий цикл компіляції Papyrus.
+- **Каталог інструментів та об'єктів стенда (Tool Catalog & Object Matrix):**
+  * **Декомпілятор:** Champollion 1.1.3 (`installer/champollion/Champollion.exe` під Wine 10).
+    Команда декомпіляції:
+    `WINEPREFIX="/home/hills/Documents/fallaut/prefix" WINEDEBUG="-all" wine installer/champollion/Champollion.exe "<шлях.pex>" -p "Z:\\home\\hills\\Documents\\fallaut\\<вихід_Source>"`
+  * **Компілятор:** Caprica (`installer/caprica/Caprica.exe` під Wine 10) з прапорцями `installer/caprica/Institute_Papyrus_Flags.flg`.
+  * **Пайплайн-роутер & аудит:** `python3 "F4 modding/f4_pipeline_router.py" --audit <staging_dir>`.
+  * **Консольний міст:** `game/copilot_cmd.txt` (виконання через консоль гри `bat copilot_cmd`).
+  * **Знімки екрана:** `bash capture_screen_to_git.sh "<контекст>"`.
+- **Джерела бінарників та кодів:**
+  * Ванільні сигнатури та скрипти рушія: `cache/base_scripts/*.psc` та `cache/base_scripts/*.pex`.
+  * Активні модифікації: `game/Data/Scripts/*.pex` та `game/Data/*.esp`.
+  * Staging каталоги: `F4 modding/staging_<mod_name>/` (`Source/`, `Scripts/`, `build_<mod>_esp.py`).
+- **Заборона AI-патчерів:** Редагування файлів виконується строго через нативний інструмент `replace_file_content`. Категорично заборонено генерувати одноразові Python-скрипти для редагування коду.
+- **Dynamic Step Budget:** Фаза 4 у домені F4 modding вимагає контракту `dynamic_step_budget = 60` у `/tmp/antigravity_phase4_contract.json`.
+
+### 1.1 Ролі ШІ у декомпіляції та модифікації Papyrus / ESP
+- **Двійковий рівень (Champollion):** Детерміністична декомпіляція двійкових `.pex` у вихідний код `.psc`. Заборонено намагатися дизасемблювати бінарники через ШІ-моделі!
+- **Tier 1 (Local Ollama qwen2.5-coder:1.5b):** Очищення декомпільованого `.psc` від артефактів компилятора (`::temp*`, надлишкові касти типів), генерація автономних функцій.
+- **Tier 2 (Groq Cloud LPU gpt-oss-120b):** Важкий рефакторинг квестових стейт-машин, сцен діалогів та формування логіки ESP-білдерів.
+- **Tier 4 (Claude Sonnet 4.1):** Обов'язкова валідація сигнатур API проти ванільних дефініцій `cache/base_scripts/<ScriptName>.psc`.
+- **Tier 4.5 (Copilot CLI):** Комплексний e2e-аудит пакета мода перед релізом (`copilot --heavy-refactor`).
 
 ## 2. Шлюз 4.1: Аудит Claude Sonnet (Базовий сет F4)
 - **Розширений контекст аудиту:** При аудиті коду в Фазі 4 / 4.1 Claude Sonnet аналізує **НЕ лише diff змін**, а обов'язковий **повний сет задіяних файлів із базового сетапу F4**:

@@ -1,8 +1,8 @@
 # Fallout Stand: Правила геймплейної підтримки та live-взаємодії (F4 Gameplay support)
 
 > [!IMPORTANT]
-> **Policy Inheritance Anchor (§9 GEMINI.md):**  
-> Цей документ є спеціалізованим модульним оверлеєм над Core Kernel [`/home/hills/Documents/GEMINI.md`](file:///home/hills/Documents/GEMINI.md) v0.9.5 та кореневим маніфестом [`fallaut/AGENTS.md`](file:///home/hills/Documents/fallaut/AGENTS.md).
+> **Policy Inheritance Anchor (Global Plugin Architecture):**  
+> Цей документ є спеціалізованим модульним оверлеєм над конституційним ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) та кореневим диспетчером [`fallaut/AGENTS.md`](file:///home/hills/Documents/fallaut/AGENTS.md).
 > Визначає правила оперативної взаємодії, зворотного зв'язку та підтримки гравця під час запущеної гри на стенді.
 
 ---
