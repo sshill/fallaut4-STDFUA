@@ -434,26 +434,16 @@ class UnifiedFootpadMapper:
             os.write(fd, ev + syn)
 
     def scale_stick(self, val):
-        # DS4 hardware reports 0..255. Center is around 128.
-        # Deadband 120..136 ensures 100% reliable zero-return without micro-drift or phantom movement.
-        if 120 <= val <= 136:
+        # DS4 hardware reports 0..255. Hardware center fluctuates around 128..132.
+        # Deadzone: 122..134 -> 0 (prevents jitter, phantom menu scrolling & drift in Pip-Boy)
+        if 122 <= val <= 134:
             return 0
-        elif val > 136:
-            # Anti-stick saturation: reach full 32767 smoothly before physical potentiometer edge
-            if val >= 248:
-                return 32767
-            norm = (val - 136.0) / (248.0 - 136.0)
-            # Gamma 1.35 curve: precision on micro-movements, smooth transition to run
-            curve = math.pow(norm, 1.35)
-            # Offset ~4500 (13.7%) instantly clears Fallout 4 engine's internal deadband on micro-touch
-            return min(32767, int(4500 + curve * (32767 - 4500)))
+        elif val > 134:
+            # Map 135..255 smoothly to 1..32767
+            return min(32767, int((val - 134) * (32767.0 / (255.0 - 134.0))))
         else:
-            # Negative direction (val < 120)
-            if val <= 8:
-                return -32768
-            norm = (120.0 - val) / (120.0 - 8.0)
-            curve = math.pow(norm, 1.35)
-            return max(-32768, -int(4500 + curve * (32768 - 4500)))
+            # Map 121..0 smoothly to -1..-32768
+            return max(-32768, int((val - 122) * (32768.0 / 122.0)))
 
     def handle_ds4_event(self, ev_type, code, val):
         if not self.fd_uinput_gamepad:
