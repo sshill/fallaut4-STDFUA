@@ -1,8 +1,8 @@
-# Fallout 4 Stand — Constitutional Dispatcher & Domain Overlay (Kernel v0.9.7)
+# Fallout 4 Stand — Constitutional Dispatcher & Domain Overlay (Kernel v0.9.9)
 
 > [!IMPORTANT]
 > **Policy Inheritance Anchor (Global Plugin Architecture):**  
-> Цей маніфест є кореневим конституційним диспетчером та доменним оверлеєм над ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) v0.9.7.
+> Цей маніфест є кореневим конституційним диспетчером та доменним оверлеєм над ядром [`~/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md`](file:///home/hills/.gemini/config/plugins/hybrid-ide/rules/AGENTS.md) v0.9.9.
 > Оскільки Antigravity автоматично завантажує виключно `<workspace_root>/AGENTS.md`, цей документ є авторитетним маршрутизатором для 3 піддоменів стенда.
 
 ---
@@ -12,11 +12,12 @@
 - **Домен:** `Fallout 4 Research & Modding Stand` (`/home/hills/Documents/fallaut`).
 - **Цільовий стек:** Linux Wine 10 / DXVK 2.6 / Mesa Iris Xe (ANV 25.0.7) / DualShock 4 v2 / Hardware Pedals / OSD Audio Chimes.
 - **Обов'язковий Domain Badge у Status Banner:**  
-  `🎯 [DOMAIN: Fallout 4 Stand Dispatcher | HOST: Linux Wine 10/Intel iGPU | v0.9.7]`
+  `🎯 [DOMAIN: Fallout 4 Stand Dispatcher | HOST: Linux Wine 10/Intel iGPU | v0.9.9]`
 
 ### 1.1 Три спеціалізовані піддомени та правила маршрутизації
 1. **[`F4 modding/`](file:///home/hills/Documents/fallaut/F4%20modding/AGENTS.md):** Модифікація Creation Engine, декомпіляція Champollion 1.1.3 (`.pex` ➔ `.psc`), компіляція Caprica (`.psc` ➔ `.pex`), аудит через `f4_pipeline_router.py`, ESP builder.
-   * **Аудит:** Шлюз 4.1 (Claude Sonnet на `cache/base_scripts/*.psc`) + Шлюз 4.5 (Pre-Release e2e-аудит пакета через GitHub Copilot CLI).
+   * **Декомпілятор Wine:** `WINEPREFIX="/home/hills/Documents/fallaut/prefix" WINEDEBUG="-all" wine installer/champollion/Champollion.exe "<шлях.pex>" -p "Z:\\home\\hills\\Documents\\fallaut\\<вихід_Source>"`
+   * **Аудит:** Шлюз 4.2 (Claude Sonnet Pre-Check на `cache/base_scripts/*.psc`) + Шлюз 4.5 (Pre-Release e2e-аудит пакета через GitHub Copilot CLI).
    * **Правила:** Реєстрація `.psc` у SLSA Provenance Ledger, розширений бюджет Фази 4 (60 кроків). Запуск компіляції та білдерів напряму без ad-hoc обгорток.
 2. **[`F4 Gameplay support/`](file:///home/hills/Documents/fallaut/F4%20Gameplay%20support/AGENTS.md):** Оперативна підтримка під час запущеної гри.
    * **Аудит:** Стандартний Antigravity Supervisor (швидкий triage, `view_file` для логів/ini, `game/copilot_cmd.txt`, `capture_screen_to_git.sh`, chimes).
