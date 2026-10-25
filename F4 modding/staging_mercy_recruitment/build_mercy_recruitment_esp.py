@@ -25,7 +25,9 @@ GAME_DATA_ESP = "/home/hills/Documents/fallaut/game/Data/MercyRecruitment.esp"
 def make_subrecord(sig, data):
     assert len(sig) == 4
     if isinstance(data, str):
-        data = data.encode("utf-8") + b"\x00"
+        if not data.endswith("\x00"):
+            data = data + "\x00"
+        data = data.encode("utf-8")
     return sig.encode("ascii") + struct.pack("<H", len(data)) + data
 
 def make_record(sig, form_id, flags, data):
@@ -88,6 +90,8 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
         f.seek(offset)
         rec_head = f.read(24)
         sig, rlen, rflags, rformid = struct.unpack("<4sIII", rec_head[:16])
+        assert sig == b"NPC_", f"Expected NPC_ record, got {sig} at offset {offset}"
+        assert rformid == form_id, f"FormID mismatch at {offset}: expected 0x{form_id:08X}, got 0x{rformid:08X}"
         rec_data = f.read(rlen)
         if rflags & 0x00040000:
             rec_data = zlib.decompress(rec_data[4:])
@@ -97,10 +101,9 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
         ("bAllowMove", 5, True),
         ("bCommandable", 5, True),
         ("bCountsForPopulation", 5, True),
+        ("WorkshopParent", 1, 0x0002058E),
     ]
     script_defs = [("workshopnpcscript", vmad_props)]
-    if form_id == 0x000E1D27:
-        script_defs.append(("ShellyTillerRecruitScript", [("MercyQuest", 1, 0x01000800)]))
     vmad_sub = build_vmad(script_defs)
     
     pos = 0
@@ -113,6 +116,9 @@ def extract_and_modify_npc(form_id, offset, make_essential=False, make_protected
         if ssig == b"EDID":
             new_data += rec_data[pos:pos+6+slen]
             new_data += vmad_sub
+        elif ssig == b"VMAD":
+            # Skip existing vanilla VMAD so our custom vmad_sub replaces it cleanly
+            pass
         elif ssig == b"ACBS":
             flags, mag, hp, ap = struct.unpack("<IIHH", sbody[:12])
             if make_essential:

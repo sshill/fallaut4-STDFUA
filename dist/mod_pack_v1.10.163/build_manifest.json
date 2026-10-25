@@ -1,34 +1,63 @@
 {
-  "timestamp_utc": "2026-10-03T12:22:51.338095+00:00",
+  "timestamp_utc": "2026-10-25T13:36:00.082590+00:00",
   "game_version": "1.10.163.0",
   "target_directory": "/home/hills/Documents/fallaut/dist/mod_pack_v1.10.163",
   "modules": [
+    {
+      "name": "staging_deb_caravan",
+      "esp": "DebCaravanRomance.esp",
+      "pex_files": [
+        "DebCaravanSupervisorScript.pex",
+        "CaravanArmoryChestScript.pex"
+      ],
+      "psc_files": [
+        "DebCaravanSupervisorScript.psc",
+        "CaravanArmoryChestScript.psc"
+      ],
+      "recompile_needed": []
+    },
     {
       "name": "staging_ellie_romance",
       "esp": "EllieRomance.esp",
       "pex_files": [
         "EllieWardrobeChestScript.pex",
-        "EllieRomanceEncounterScript.pex",
-        "TestEllie.pex",
-        "TestQuick.pex",
-        "TestSimple.pex"
+        "EllieRomanceEncounterScript.pex"
       ],
       "psc_files": [
-        "TestQuick.psc",
-        "TestSimple.psc",
         "EllieWardrobeChestScript.psc",
-        "EllieRomanceEncounterScript.psc",
-        "TestEllie.psc"
+        "EllieRomanceEncounterScript.psc"
       ],
-      "recompile_needed": [
-        "TestQuick.psc"
-      ]
+      "recompile_needed": []
+    },
+    {
+      "name": "staging_enclave_remnants",
+      "esp": "EnclaveRemnants.esp",
+      "pex_files": [
+        "EnclaveRemnantsQuestScript.pex"
+      ],
+      "psc_files": [
+        "EnclaveRemnantsQuestScript.psc"
+      ],
+      "recompile_needed": []
     },
     {
       "name": "staging_gentleman_outfit",
       "esp": "GentlemanOutfitReskin.esp",
       "pex_files": [],
       "psc_files": [],
+      "recompile_needed": []
+    },
+    {
+      "name": "staging_legendary_fix",
+      "esp": null,
+      "pex_files": [
+        "legendaryitemquestscript.pex",
+        "LegendaryCreatureItemEffectScript.pex"
+      ],
+      "psc_files": [
+        "legendaryitemquestscript.psc",
+        "LegendaryCreatureItemEffectScript.psc"
+      ],
       "recompile_needed": []
     },
     {
@@ -40,36 +69,11 @@
         "MercyRecruitmentPerkScript.pex"
       ],
       "psc_files": [
-        "PRKF_Intimidation01_001D02B5.psc",
-        "SF_WorkshopRecruitSheffield_0005E1EE.psc",
-        "workshopnpcscript.psc",
-        "workshopobjectscript.psc",
-        "ReferenceAlias.psc",
         "MercyRecruitmentQuestScript.psc",
-        "RefCollectionAlias.psc",
-        "LocationAlias.psc",
-        "PRKF_Cannibal_0004B259.psc",
         "ShellyTillerRecruitScript.psc",
-        "workshopdatascript.psc",
-        "workshopscript.psc",
-        "LeveledItem.psc",
-        "MercyRecruitmentPerkScript.psc",
-        "followersscript.psc"
+        "MercyRecruitmentPerkScript.psc"
       ],
-      "recompile_needed": [
-        "PRKF_Intimidation01_001D02B5.psc",
-        "SF_WorkshopRecruitSheffield_0005E1EE.psc",
-        "workshopnpcscript.psc",
-        "workshopobjectscript.psc",
-        "ReferenceAlias.psc",
-        "RefCollectionAlias.psc",
-        "LocationAlias.psc",
-        "PRKF_Cannibal_0004B259.psc",
-        "workshopdatascript.psc",
-        "workshopscript.psc",
-        "LeveledItem.psc",
-        "followersscript.psc"
-      ]
+      "recompile_needed": []
     },
     {
       "name": "staging_rexford_romance",
@@ -81,39 +85,56 @@
         "RexfordRomanceEncounterScript.psc"
       ],
       "recompile_needed": []
+    },
+    {
+      "name": "staging_vintage_mannequins",
+      "esp": "VintageMannequins.esp",
+      "pex_files": [],
+      "psc_files": [],
+      "recompile_needed": []
     }
   ],
   "collected_esps": [
+    "DebCaravanRomance.esp",
     "EllieRomance.esp",
+    "EnclaveRemnants.esp",
     "GentlemanOutfitReskin.esp",
     "MercyRecruitment.esp",
-    "RexfordRomance.esp"
+    "RexfordRomance.esp",
+    "VintageMannequins.esp"
   ],
   "collected_pex": [
+    "DebCaravanSupervisorScript.pex",
+    "CaravanArmoryChestScript.pex",
     "EllieWardrobeChestScript.pex",
     "EllieRomanceEncounterScript.pex",
-    "TestEllie.pex",
-    "TestQuick.pex",
-    "TestSimple.pex",
+    "EnclaveRemnantsQuestScript.pex",
+    "legendaryitemquestscript.pex",
+    "LegendaryCreatureItemEffectScript.pex",
     "ShellyTillerRecruitScript.pex",
     "MercyRecruitmentQuestScript.pex",
     "MercyRecruitmentPerkScript.pex",
     "RexfordRomanceEncounterScript.pex"
   ],
   "file_checksums_sha256": {
-    "EllieRomance.esp": "c953d92616df5ef1d7bfe1510f73073a54270894d5d90fcd992ca34d3da7fbb0",
-    "Scripts/EllieWardrobeChestScript.pex": "56d6fbc0b8bbe3b51d1f6176d7370c31e48f0a58ada9b4ff1da71e3e0c1fd504",
-    "Scripts/EllieRomanceEncounterScript.pex": "390c78c504b1a0914f69cb4db2ce3a9bb9504d1ce7485efc430497cd790ba3de",
-    "Scripts/TestEllie.pex": "956f2495328441178bc05dc479fb817f65518c3ddcd33a7d69a3126a2974369d",
-    "Scripts/TestQuick.pex": "42d20eb9d572e91d6be46dec727abbec1f3ccce3b61d149077af2672fe99bbff",
-    "Scripts/TestSimple.pex": "40b0c4e077f74c75773f938df63ef3944833c257b022dffec6a1c06d1db438b3",
+    "DebCaravanRomance.esp": "b2295dde42389823c434f9c0d232e633f400cd4ef9c67f0358f0734eb899ad3c",
+    "Scripts/DebCaravanSupervisorScript.pex": "a10ea057181e2ae8c2b648cdd7ebd611e5dfd5e9e3fbbf32ec59688294128e10",
+    "Scripts/CaravanArmoryChestScript.pex": "b8af546fbc2212aeeb488fd01e5193112df7d1de641d7d8f1ef6ec79df092fd6",
+    "EllieRomance.esp": "5111f1d9d05db0a4a3dcd3ccbfa0d9b861169cc66891dfa13e2a85ee5dbaf4fb",
+    "Scripts/EllieWardrobeChestScript.pex": "6b415cb04f7bb20df607aebd38724ec337a9530a09d95b76d59545e0ef99cb7b",
+    "Scripts/EllieRomanceEncounterScript.pex": "cc9a087fe8f7fb59a76af52efd3ee4534d30a8738cc60a76f10021857fa3b48e",
+    "EnclaveRemnants.esp": "f57083aef534ea14581390fb9f31536008c5ddc7fd9f84c9dec98d3fb4a2038d",
+    "Scripts/EnclaveRemnantsQuestScript.pex": "143c87cf1ae4181c0ae6e61d6c869a33aab6b90aebd76dbc568e1b2b5cd23006",
     "GentlemanOutfitReskin.esp": "55fed6454c252229aee3cb490abddfe38617abb892fcb621ee5fbd6baa60e8d7",
-    "MercyRecruitment.esp": "9c7b49db7dd5301173986d4121196da7d1f6228844650ed6d037eb2277c007ea",
-    "Scripts/ShellyTillerRecruitScript.pex": "dbd1ce8682df421c9e8f0e26ee14b097675a95bc8be40b0e98e51a45d9339da5",
-    "Scripts/MercyRecruitmentQuestScript.pex": "f280384444793de39d205bb4b46934b5b4a0a9f3ba0d7770d7bed9e7cbf6f8a6",
-    "Scripts/MercyRecruitmentPerkScript.pex": "61b6580d2ff5c4043ef133e71e6026c36e33ee47a673981232f48e3941ac8680",
-    "RexfordRomance.esp": "9b7f3cf9c3a48cdc8b091830c284174a143ac6bfed414402ae2f07848947f94f",
-    "Scripts/RexfordRomanceEncounterScript.pex": "ed95718d7bd039db6789e31fdccfe35f10ce1e094696826edc9d20a00a4736d3",
+    "Scripts/legendaryitemquestscript.pex": "9110e88f514b1be90501c799744c99bebd11e2c3ebd0f0cf86be05023faf3477",
+    "Scripts/LegendaryCreatureItemEffectScript.pex": "562f89838e4110d1618f879d347268b9f97961a16451fbd5213c995ad9dd5adc",
+    "MercyRecruitment.esp": "b12c7ebde67b1f8b4aa856128540757986de47d71a875b845cc161e4ba15b941",
+    "Scripts/ShellyTillerRecruitScript.pex": "a39cf73fa2bc2543eab67be02cd614e7a030b9c1848cbc29bc9b08a0ddc2178f",
+    "Scripts/MercyRecruitmentQuestScript.pex": "4be8ad04f5c190863fb8cc0280471d7ba0e7589beb331fde12d5c0652d3de3b3",
+    "Scripts/MercyRecruitmentPerkScript.pex": "c44583a77de0da8e142ce9c9243e656de94b674bd16d8a24a9f91a100c533faa",
+    "RexfordRomance.esp": "c1790b8b6c4678102b86e9a04644fae2aae1380703979caedc9583f27b8a96ab",
+    "Scripts/RexfordRomanceEncounterScript.pex": "7e0087557672c45192d44c9b312431a921be6160dafd886bc0e7eb8ab023b15e",
+    "VintageMannequins.esp": "720ace5ba7587b03e8d5fe89ce18da43eb97ee9301e0a6a1c279584a8b88184f",
     "Ukrainization/FontConfig.txt": "a9eb86764aa93adcc1653dc3efc7bb728bd6e12494ff176460ee4b232224f60b"
   },
   "ukrainization": {
@@ -135,12 +156,15 @@
   "ai_verification": {
     "audit_status": "PASS",
     "verified_plugins": [
-      "staging_ellie_romance.esp",
-      "staging_gentleman_outfit.esp",
-      "staging_mercy_recruitment.esp",
-      "staging_rexford_romance.esp"
+      "DebCaravanRomance.esp",
+      "EllieRomance.esp",
+      "EnclaveRemnants.esp",
+      "GentlemanOutfitReskin.esp",
+      "MercyRecruitment.esp",
+      "RexfordRomance.esp",
+      "VintageMannequins.esp"
     ],
-    "integrity_verdict": "All plugins are verified and have no known issues.",
+    "integrity_verdict": "All ESPs are verified and have no known issues.",
     "git_release_tag": "v1.10.163-modpack-release",
     "ai_engine": "ollama_qwen2.5-coder:1.5b"
   }

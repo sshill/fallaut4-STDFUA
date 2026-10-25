@@ -53,7 +53,7 @@ Function InitializeMod()
     If player != None
         RegisterForRemoteEvent(player as ScriptObject, "OnPlayerLoadGame")
         RegisterForRemoteEvent(player as ScriptObject, "OnLocationChange")
-        If MercyRecruitmentPerk != None
+        If MercyRecruitmentPerk != None && !player.HasPerk(MercyRecruitmentPerk)
             player.AddPerk(MercyRecruitmentPerk, False)
         EndIf
     EndIf
@@ -121,7 +121,6 @@ Event ObjectReference.OnWorkshopNPCTransfer(ObjectReference akSender, Location a
     EndIf
     
     akSender.SetLinkedRef(ws as ObjectReference, WorkshopParent.WorkshopItemKeyword)
-    akSender.SetPersistLoc(ws.myLocation)
     If WorkshopParent.PermanentActorAliases != None
         WorkshopParent.PermanentActorAliases.AddRef(akSender)
     EndIf
@@ -131,6 +130,12 @@ Event ObjectReference.OnWorkshopNPCTransfer(ObjectReference akSender, Location a
     If wsNPC != None
         WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, ws, False)
         WorkshopParent.TryToAutoAssignActor(ws, wsNPC)
+    Else
+        If WorkshopParent != None
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowCommand)
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowMove)
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowCaravan)
+        EndIf
     EndIf
     ws.RecalculateWorkshopResources(True)
     UnregisterForRemoteEvent(akSender as ScriptObject, "OnWorkshopNPCTransfer")
@@ -154,7 +159,6 @@ Function AssignActorToSettlement(Actor akTarget, Location targetLoc, workshopnpc
     If ws != None
         akTarget.SetLinkedRef(ws as ObjectReference, WorkshopParent.WorkshopItemKeyword)
         WorkshopParent.AssignHomeMarkerToActor(akTarget, ws)
-        akTarget.SetPersistLoc(ws.myLocation)
         If WorkshopParent.PermanentActorAliases != None
             WorkshopParent.PermanentActorAliases.AddRef(akTarget as ObjectReference)
         EndIf
@@ -171,6 +175,12 @@ Function AssignActorToSettlement(Actor akTarget, Location targetLoc, workshopnpc
         If ws != None && wsNPC.GetWorkshopID() != ws.GetWorkshopID()
             WorkshopParent.AddActorToWorkshopPUBLIC(wsNPC, ws, False)
             WorkshopParent.TryToAutoAssignActor(ws, wsNPC)
+        EndIf
+    Else
+        If WorkshopParent != None
+            akTarget.AddKeyword(WorkshopParent.WorkshopAllowCommand)
+            akTarget.AddKeyword(WorkshopParent.WorkshopAllowMove)
+            akTarget.AddKeyword(WorkshopParent.WorkshopAllowCaravan)
         EndIf
     EndIf
     
@@ -190,10 +200,11 @@ Bool Function RegisterTheaterSettler(Actor akActor, workshopscript akWS)
     EndIf
     
     akActor.AddToFaction(WorkshopNPCFaction)
-    akActor.SetLinkedRef(akWS as ObjectReference, WorkshopParent.WorkshopItemKeyword)
-    akActor.SetPersistLoc(akWS.myLocation)
-    If WorkshopParent.PermanentActorAliases != None
-        WorkshopParent.PermanentActorAliases.AddRef(akActor as ObjectReference)
+    If WorkshopParent != None
+        akActor.SetLinkedRef(akWS as ObjectReference, WorkshopParent.WorkshopItemKeyword)
+        If WorkshopParent.PermanentActorAliases != None
+            WorkshopParent.PermanentActorAliases.AddRef(akActor as ObjectReference)
+        EndIf
     EndIf
     
     akActor.SetCrimeFaction(None)
@@ -213,7 +224,12 @@ Bool Function RegisterTheaterSettler(Actor akActor, workshopscript akWS)
             WorkshopParent.TryToAutoAssignActor(akWS, wsNPC)
         EndIf
     Else
-        WorkshopParent.AssignHomeMarkerToActor(akActor, akWS)
+        If WorkshopParent != None
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowCommand)
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowMove)
+            akActor.AddKeyword(WorkshopParent.WorkshopAllowCaravan)
+            WorkshopParent.AssignHomeMarkerToActor(akActor, akWS)
+        EndIf
     EndIf
     WorkshopParent.ApplyWorkshopAliasData(akActor)
     
@@ -316,7 +332,7 @@ Function RecruitShelly(Actor akShelly)
         targetLoc = akShelly.OpenWorkshopSettlementMenu(WorkshopAssignHomePermanentActor, None, None)
     EndIf
     
-    If targetLoc != None || (wsNPC != None && wsNPC.GetWorkshopID() > -1)
+    If targetLoc != None
         IsShellyRecruited = True
         
         akShelly.StopCombat()
@@ -346,10 +362,12 @@ Function RecruitShelly(Actor akShelly)
         EndIf
         
         UnregisterForRemoteEvent(akShelly as ScriptObject, "OnActivate")
+        UnregisterForRemoteEvent(akShelly as ScriptObject, "OnWorkshopNPCTransfer")
         
         TriggerPiperAffinityReaction(15.0)
         Debug.Notification("Шеллі Тіллер завербована та вирушила до поселення.")
     Else
+        UnregisterForRemoteEvent(akShelly as ScriptObject, "OnWorkshopNPCTransfer")
         Debug.Notification("Вербування скасовано.")
     EndIf
 EndFunction
@@ -413,6 +431,18 @@ Function RecruitSurrenderedTarget(Actor akTarget)
         Return
     EndIf
     
+    akTarget.StopCombat()
+    akTarget.StopCombatAlarm()
+    akTarget.RemoveFromAllFactions()
+    akTarget.SetCrimeFaction(None)
+    akTarget.SetValue(Game.GetAggressionAV(), 0.0)
+    akTarget.AddToFaction(PlayerFaction)
+    akTarget.AddToFaction(WorkshopNPCFaction)
+    akTarget.AddToFaction(REIgnoreForCleanup)
+    If REDialogueRescued != None
+        akTarget.RemoveFromFaction(REDialogueRescued)
+    EndIf
+    
     Location targetLoc = None
     workshopnpcscript wsNPC = akTarget as workshopnpcscript
     If wsNPC != None && WorkshopParent != None
@@ -421,21 +451,8 @@ Function RecruitSurrenderedTarget(Actor akTarget)
         targetLoc = akTarget.OpenWorkshopSettlementMenu(WorkshopAssignHomePermanentActor, None, None)
     EndIf
     
-    If targetLoc != None || (wsNPC != None && wsNPC.GetWorkshopID() > -1)
-        akTarget.StopCombat()
-        akTarget.StopCombatAlarm()
-        akTarget.RemoveFromAllFactions()
-        akTarget.SetCrimeFaction(None)
-        akTarget.SetValue(Game.GetAggressionAV(), 0.0)
-        akTarget.AddToFaction(PlayerFaction)
-        akTarget.AddToFaction(WorkshopNPCFaction)
-        akTarget.AddToFaction(REIgnoreForCleanup)
-        If REDialogueRescued != None
-            akTarget.RemoveFromFaction(REDialogueRescued)
-        EndIf
-        
+    If targetLoc != None
         AssignActorToSettlement(akTarget, targetLoc, wsNPC)
-        
         TriggerPiperAffinityReaction(10.0)
         Debug.Notification("Помилуваного завербовано до поселення.")
     Else
@@ -461,7 +478,7 @@ Function RecruitPeacefulCivilian(Actor akTarget)
     EndIf
     
     ; 1. Перевірка: чи персонаж уже є поселенцем і прив'язаний до майстерні
-    If akTarget.IsInFaction(WorkshopNPCFaction) && akTarget.GetLinkedRef(WorkshopParent.WorkshopItemKeyword) != None
+    If WorkshopParent != None && akTarget.IsInFaction(WorkshopNPCFaction) && akTarget.GetLinkedRef(WorkshopParent.WorkshopItemKeyword) != None
         Debug.Notification("Цей персонаж уже живе у вашому поселенні.")
         Return
     EndIf
@@ -520,11 +537,12 @@ Function RecruitPeacefulCivilian(Actor akTarget)
     If wsNPC != None && WorkshopParent != None
         targetLoc = WorkshopParent.AddPermanentActorToWorkshopPlayerChoice(akTarget, True)
     ElseIf akTarget != None
+        RegisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
         targetLoc = akTarget.OpenWorkshopSettlementMenu(WorkshopAssignHomePermanentActor, None, None)
     EndIf
     
     ; 6. Якщо поселення обрано — завершуємо налаштування
-    If targetLoc != None || (wsNPC != None && wsNPC.GetWorkshopID() > -1)
+    If targetLoc != None
         akTarget.StopCombat()
         akTarget.StopCombatAlarm()
         akTarget.SetCrimeFaction(None)
@@ -537,10 +555,12 @@ Function RecruitPeacefulCivilian(Actor akTarget)
         EndIf
         
         AssignActorToSettlement(akTarget, targetLoc, wsNPC)
+        UnregisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
         
         TriggerPiperAffinityReaction(15.0)
         Debug.Notification("Мирний житель погодився і вирушив до поселення.")
     Else
+        UnregisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
         ; Якщо вербування скасовано, а гравець заплатив кришки — повертаємо їх
         If paidCaps && CapsItem != None
             player.AddItem(CapsItem as Form, 50, True)

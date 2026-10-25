@@ -42,10 +42,10 @@ def decompile_type(typename):
     if os.path.exists(out_psc):
         return True
     
-    cmd = ["wine", CHAMPOLLION_EXE, actual_pex, "-p", "Z:\\home\\hills\\Documents\\fallaut\\F4 modding\\staging_mercy_recruitment\\Source"]
+    cmd = ["wine", CHAMPOLLION_EXE, actual_pex, "-p", "."]
     res = subprocess.run(cmd, cwd=CACHE_DIR, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if res.returncode == 0:
-        print(f"[+] Decompiled {actual_pex} -> Source/")
+        print(f"[+] Decompiled {actual_pex} -> {out_psc}")
         return True
     else:
         print(f"[-] Champollion failed on {actual_pex}: {res.stderr}")
