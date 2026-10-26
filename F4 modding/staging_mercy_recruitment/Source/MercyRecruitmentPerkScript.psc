@@ -14,12 +14,5 @@ Function Fragment_Entry_00(ObjectReference akTargetRef, Actor akActor)
         Return
     EndIf
     
-    If WorkshopNPCFaction != None && targetActor.IsInFaction(WorkshopNPCFaction)
-        If !targetActor.IsDead() && !targetActor.IsInCombat()
-            targetActor.OpenInventory(True)
-        EndIf
-        Return
-    EndIf
-    
-    MercyQuest.RecruitPeacefulCivilian(targetActor)
+    MercyQuest.HandleActivation(targetActor)
 EndFunction

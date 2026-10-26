@@ -24,6 +24,12 @@ Bool Property IsShellyRecruited = False Auto
 Bool Property IsShellySpared = False Auto
 Bool Property IsTheaterCultistsFixed = False Auto
 
+; Dynamic DLC Forms & Cache (Non-VMAD script variables)
+Armor CachedDLC04ShockCollar = None
+Armor CachedDLC04ShockCollarAlt = None
+Keyword CachedDLC04RQShockCollared = None
+Bool IsDLC04Checked = False
+
 ;-- Helper Getters -----------------------------------------
 Actor Function GetShelly()
     If ShellyRef == None
@@ -58,6 +64,8 @@ Function InitializeMod()
         EndIf
     EndIf
     
+    RefreshDynamicDLCForms()
+    
     Actor shelly = GetShelly()
     If shelly != None && !IsShellyRecruited && !IsShellySpared && !shelly.IsDead()
         shelly.BlockActivation(True, False)
@@ -73,6 +81,114 @@ Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLo
         InitializeMod()
     EndIf
 EndEvent
+
+;-- Dynamic DLC Verification & Resolution ------------------
+Function RefreshDynamicDLCForms()
+    If Game.IsPluginInstalled("DLCNukaWorld.esm")
+        CachedDLC04ShockCollar = Game.GetFormFromFile(0x00029AFA, "DLCNukaWorld.esm") as Armor
+        CachedDLC04ShockCollarAlt = Game.GetFormFromFile(0x00026859, "DLCNukaWorld.esm") as Armor
+        CachedDLC04RQShockCollared = Game.GetFormFromFile(0x0001E347, "DLCNukaWorld.esm") as Keyword
+        IsDLC04Checked = True
+    Else
+        CachedDLC04ShockCollar = None
+        CachedDLC04ShockCollarAlt = None
+        CachedDLC04RQShockCollared = None
+        IsDLC04Checked = True
+    EndIf
+EndFunction
+
+Bool Function IsNukaWorldCollared(Actor akTarget)
+    If akTarget == None
+        Return False
+    EndIf
+    
+    If !IsDLC04Checked
+        RefreshDynamicDLCForms()
+    EndIf
+    
+    If CachedDLC04ShockCollar != None && akTarget.IsEquipped(CachedDLC04ShockCollar as Form)
+        Return True
+    EndIf
+    If CachedDLC04ShockCollarAlt != None && akTarget.IsEquipped(CachedDLC04ShockCollarAlt as Form)
+        Return True
+    EndIf
+    If CachedDLC04RQShockCollared != None
+        If akTarget.HasKeyword(CachedDLC04RQShockCollared) || akTarget.WornHasKeyword(CachedDLC04RQShockCollared)
+            Return True
+        EndIf
+    EndIf
+    
+    Return False
+EndFunction
+
+;-- Universal Activation Dispatcher (3-Level Filter Matrix) --
+Function HandleActivation(Actor akTarget)
+    If akTarget == None || akTarget.IsDead() || akTarget == Game.GetPlayer()
+        Return
+    EndIf
+    
+    ; Рівень 1: Жорсткий блок (Hard Block)
+    Keyword actorTypeNPC = Game.GetForm(0x00013794) as Keyword
+    If actorTypeNPC != None && !akTarget.HasKeyword(actorTypeNPC)
+        Return
+    EndIf
+    
+    If akTarget.IsChild() || akTarget.IsUnconscious() || akTarget.IsInKillMove()
+        Return
+    EndIf
+    
+    ; Шлюз рабів Nuka-World (Shock Collar)
+    If IsNukaWorldCollared(akTarget)
+        Return
+    EndIf
+    
+    ; Захист активних супутників
+    If akTarget.IsInFaction(CurrentCompanionFaction) || akTarget.IsPlayerTeammate()
+        Return
+    EndIf
+    
+    ; Завербовані жителі поселення: відкриття контейнера обміну [E]
+    If WorkshopParent != None && akTarget.IsInFaction(WorkshopNPCFaction)
+        If akTarget.GetLinkedRef(WorkshopParent.WorkshopItemKeyword) != None
+            akTarget.OpenInventory(True)
+            Return
+        EndIf
+    EndIf
+    
+    ; Рівень 2: Квестовий блок та сюжетний захист
+    If akTarget.IsInScene()
+        Return
+    EndIf
+    
+    ; Сюжетний пріоритет Шеллі Тіллер (MS04)
+    If akTarget == GetShelly()
+        If !IsShellyRecruited && !IsShellySpared
+            ShowShellyDialogue()
+        EndIf
+        Return
+    EndIf
+    
+    ; Захист сюжетних Essential-лідерів
+    If akTarget.IsEssential()
+        Debug.Notification("Цього персонажа не можна завербувати.")
+        Return
+    EndIf
+    
+    ; Рівень 3: Події капітуляції / здачі (Event-Driven Mercy)
+    If akTarget.IsBleedingOut() || akTarget.IsIntimidated()
+        RecruitSurrenderedTarget(akTarget)
+        Return
+    EndIf
+    
+    ; Стан бою без здачі
+    If akTarget.IsInCombat() || Game.GetPlayer().IsInCombat()
+        Debug.Notification("Зараз триває бій! Вербування неможливе.")
+        Return
+    EndIf
+    
+    ; Мирні нейтральні жителі / бродяги
+    RecruitPeacefulCivilian(akTarget)
+EndFunction
 
 ;-- Interaction Interception -------------------------------
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
@@ -431,31 +547,45 @@ Function RecruitSurrenderedTarget(Actor akTarget)
         Return
     EndIf
     
-    akTarget.StopCombat()
-    akTarget.StopCombatAlarm()
-    akTarget.RemoveFromAllFactions()
-    akTarget.SetCrimeFaction(None)
-    akTarget.SetValue(Game.GetAggressionAV(), 0.0)
-    akTarget.AddToFaction(PlayerFaction)
-    akTarget.AddToFaction(WorkshopNPCFaction)
-    akTarget.AddToFaction(REIgnoreForCleanup)
-    If REDialogueRescued != None
-        akTarget.RemoveFromFaction(REDialogueRescued)
-    EndIf
-    
     Location targetLoc = None
     workshopnpcscript wsNPC = akTarget as workshopnpcscript
     If wsNPC != None && WorkshopParent != None
         targetLoc = WorkshopParent.AddPermanentActorToWorkshopPlayerChoice(akTarget, True)
     ElseIf akTarget != None
+        RegisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
         targetLoc = akTarget.OpenWorkshopSettlementMenu(WorkshopAssignHomePermanentActor, None, None)
     EndIf
     
     If targetLoc != None
+        akTarget.StopCombat()
+        akTarget.StopCombatAlarm()
+        akTarget.SetCrimeFaction(None)
+        akTarget.SetValue(Game.GetAggressionAV(), 0.0)
+        akTarget.SetRelationshipRank(Game.GetPlayer(), 1)
+        
+        Faction raiderFac = Game.GetForm(0x0001C25A) as Faction
+        If raiderFac != None && akTarget.IsInFaction(raiderFac)
+            akTarget.RemoveFromFaction(raiderFac)
+        EndIf
+        Faction gunnerFac = Game.GetForm(0x00058302) as Faction
+        If gunnerFac != None && akTarget.IsInFaction(gunnerFac)
+            akTarget.RemoveFromFaction(gunnerFac)
+        EndIf
+        
+        akTarget.AddToFaction(PlayerFaction)
+        akTarget.AddToFaction(WorkshopNPCFaction)
+        akTarget.AddToFaction(REIgnoreForCleanup)
+        If REDialogueRescued != None
+            akTarget.RemoveFromFaction(REDialogueRescued)
+        EndIf
+        
         AssignActorToSettlement(akTarget, targetLoc, wsNPC)
+        UnregisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
+        
         TriggerPiperAffinityReaction(10.0)
         Debug.Notification("Помилуваного завербовано до поселення.")
     Else
+        UnregisterForRemoteEvent(akTarget as ScriptObject, "OnWorkshopNPCTransfer")
         Debug.Notification("Вербування скасовано.")
     EndIf
 EndFunction
