@@ -73,30 +73,22 @@ Traditional electrical stimulation of the peripheral nervous system (PNS) in cas
 
 **Track C** introduces an alternative methodology: **Closed-Loop Endogenous Signaturing**. Instead of imposing an external electrical potential, the system leverages native PNS and CNS pathways, transforming the mechanical feedback of foot/hand manipulators and localized photobiomodulation into a physiologically clean, highly anticipated motion signature.
 
-+-----------------------------+
-| CNS / Somatosensory Cortex  |
-+--------------+--------------+
-^
-| (Afferent Pathway Signaturing)
-| [Clean signature, zero harmonics]
-+--------------+--------------+
-|     Spinal Reflex Arc       |
-+--------------+--------------+
-^
-| (Intact calf zone: A-beta fibers)
-+-----------------------------+-----------------------------+
-|                                                           |
-+------v-----------------------+             +---------------------v-------+
-|    Foot / Distal Block       |             |       Software Router       |
-|  * Local LLLT Laser          |             |  * footpad_mapper.py        |
-|    (850 nm)                  |             |  * Adaptive hysteresis      |
-|  * Vessel resistance drop    |             |  * Sticking filtration      |
-|  * Mitochondrial ATP synth   |             |                             |
-+------^-----------------------+             +---------------------h-------+
-|                                                           |
-+---------------------+  Physical Footpad +-----------------+
-| (Mech Resistance) |
-+-------------------+
+[ CNS / Somatosensory Cortex ]
+▲
+│ (Afferent Pathway Signaturing)
+│ [Clean signature, zero harmonics]
+[ Spinal Reflex Arc ]
+▲
+│ (Intact calf zone: A-beta fibers)
+┌────────────────────────────┴────────────────────────────┐
+│                                                         │
+[ Foot / Distal Block ]                              [ Software Router ]
+• Local LLLT Laser (850 nm)                           • footpad_mapper.py
+• Resistance reduction (Vasa Nervorum)                • Adaptive hysteresis
+• ATP / Mitochondrial activation                       • Sticking filtration
+▲                                                         │
+└─────────────────── [ Physical Footpad ] ────────────────┘
+(Mechanotactile resistance)
 
 ### 2. De-confliction of Cognitive Resources (Flow State Realization)
 During high-intensity engagement with the stress induction engine (*Fallout 4* running under Linux Debian/Gamescope), the operator's visual and auditory processing channels are entirely saturated by the simulation workload. Attempting conscious, top-down control over numb or "sticking" extremities demands 100% of the cortical pyramidal tract's bandwidth. This causes rapid depletion of the "biological processor," triggering a resurgence of RLS (Restless Legs Syndrome).
